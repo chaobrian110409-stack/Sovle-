@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>基礎物理互動解題與教學助手｜波動・聲學・幾何光學</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            canvas: '#09090B',
+            surface: '#111114',
+            elevated: '#18181D',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+
+    :root {
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      transition: background-color 0.25s var(--ease-out-expo), color 0.25s var(--ease-out-expo);
+      overflow-x: hidden;
+    }
+
+    .dark body {
+      background-color: #09090B;
+      color: #F4F4F5;
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(56, 189, 248, 0.10), transparent 65%),
+        radial-gradient(ellipse 50% 30% at 85% 15%, rgba(167, 139, 250, 0.07), transparent 60%);
+      background-attachment: fixed;
+    }
+
+    html:not(.dark) body {
+      background-color: #FAFAFA;
+      color: #18181B;
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(14, 165, 233, 0.08), transparent 65%);
+      background-attachment: fixed;
+    }
+
+    .hairline {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    html:not(.dark) .hairline {
+      border: 1px solid rgba(24, 24, 27, 0.10);
+    }
+
+    .panel {
+      background-color: #111114;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: border-color 0.2s var(--ease-out-expo), background-color 0.2s var(--ease-out-expo), transform 0.2s var(--ease-out-expo);
+    }
+    html:not(.dark) .panel {
+      background-color: #FFFFFF;
+      border: 1px solid rgba(24, 24, 27, 0.10);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .panel-subtle {
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    html:not(.dark) .panel-subtle {
+      background-color: #F4F4F5;
+      border: 1px solid rgba(24, 24, 27, 0.08);
+    }
+
+    .input-field {
+      background-color: #09090B;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #F4F4F5;
+      transition: border-color 0.2s var(--ease-out-expo), box-shadow 0.2s var(--ease-out-expo);
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #38BDF8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+    html:not(.dark) .input-field {
+      background-color: #FFFFFF;
+      border: 1px solid rgba(24, 24, 27, 0.18);
+      color: #18181B;
+    }
+    html:not(.dark) .input-field:focus {
+      border-color: #0284C7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .answer-masked {
+      filter: blur(8px);
+      user-select: none;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .transition-smooth {
+      transition: all 0.25s var(--ease-out-expo);
+    }
+
+    /* Custom range slider */
+    input[type="range"] {
+      accent-color: #38BDF8;
+    }
+    html:not(.dark) input[type="range"] {
+      accent-color: #0284C7;
+    }
+
+    /* Hide scrollbar for horizontal topic pills */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-sky-500/30">
+  <!-- Sticky Top Navigation -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#09090B]/80 dark:bg-[#09090B]/80 border-b border-white/[0.08] light-header">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500/20 to-violet-500/20 border border-sky-400/30 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12c2-6 4-6 6 0s4 6 6 0 4-6 6 0" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <div class="text-sm font-semibold tracking-tight leading-tight truncate">波動與光學・解題教學助手</div>
+          <div class="text-[11px] text-zinc-500 dark:text-zinc-400 hidden sm:block">純前端即時算式・口語講解・互動模擬</div>
+        </div>
+      </div>
+
+      <!-- Main Tabs -->
+      <nav class="flex items-center gap-1 p-1 rounded-xl panel-subtle shrink-0" role="tablist" aria-label="主要功能分頁">
+        <button id="tab-btn-solvers" data-tab="solvers" role="tab" aria-selected="true"
+          class="main-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-smooth bg-sky-500/15 text-sky-400 dark:text-sky-300 border border-sky-500/30">
+          互動解題器
+        </button>
+        <button id="tab-btn-sims" data-tab="sims" role="tab" aria-selected="false"
+          class="main-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-smooth text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-transparent">
+          動態模擬室
+        </button>
+        <button id="tab-btn-quiz" data-tab="quiz" role="tab" aria-selected="false"
+          class="main-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-smooth text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-transparent">
+          隨堂練習
+        </button>
+      </nav>
+
+      <!-- Theme Toggle -->
+      <button id="theme-toggle" type="button" aria-label="切換深淺色主題"
+        class="p-2 rounded-lg panel-subtle hover:border-sky-500/40 transition-smooth shrink-0 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+        <svg id="icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+        </svg>
+        <svg id="icon-moon" class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <!-- ==================== TAB 1: SOLVERS ==================== -->
+    <section id="view-solvers" class="space-y-6">
+      <!-- Top Controls: Category Filter + Search + Global Mask Toggle -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button data-cat="all" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">
+            全部題型 (9)
+          </button>
+          <button data-cat="waves" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth panel-subtle text-zinc-600 dark:text-zinc-300 hover:border-sky-500/40">
+            波動與聲學 (4)
+          </button>
+          <button data-cat="optics" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth panel-subtle text-zinc-600 dark:text-zinc-300 hover:border-violet-500/40">
+            基礎光學與色彩 (5)
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1 md:w-60">
+            <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input id="topic-search" type="text" placeholder="搜尋題型（如：回聲、蝙蝠、凸透鏡）"
+              class="input-field w-full pl-9 pr-3 py-1.5 rounded-lg text-xs sm:text-sm" />
+          </div>
+          <button id="global-mask-btn" type="button"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium panel-subtle text-zinc-600 dark:text-zinc-300 hover:border-sky-500/40 transition-smooth whitespace-nowrap flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span id="global-mask-label">解答遮罩：關</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Topic Selector Strip + Active Solver Workspace -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- Sidebar / Horizontal Pills on Mobile -->
+        <aside class="lg:col-span-4 space-y-2">
+          <div id="topic-list" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 no-scrollbar">
+            <!-- Populated by JS -->
+          </div>
+        </aside>
+
+        <!-- Active Solver Container -->
+        <div class="lg:col-span-8">
+          <div id="solver-stage" class="panel rounded-2xl p-4 sm:p-6 space-y-5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: SIMULATORS ==================== -->
+    <section id="view-sims" class="hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 class="text-lg sm:text-xl font-semibold tracking-tight">HTML5 Canvas 互動視覺化模擬室</h1>
+          <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">直接拖曳滑桿或畫布物體，讓抽象的波動與光路一眼看懂。</p>
+        </div>
+        <div class="flex items-center gap-1.5 p-1 rounded-xl panel-subtle">
+          <button id="sim-sub-wave" data-sim="wave" class="sim-sub-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-500/15 text-sky-400 border border-sky-500/30">
+            動態波動模擬器
+          </button>
+          <button id="sim-sub-lens" data-sim="lens" class="sim-sub-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 border border-transparent">
+            透鏡成像光路模擬器
+          </button>
+        </div>
+      </div>
+
+      <!-- Wave Simulator Panel -->
+      <div id="sim-panel-wave" class="panel rounded-2xl p-4 sm:p-6 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-semibold tracking-tight">橫波動態與質點振動模擬</h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">注意橘色圓點只會「原地上下振動」，不會跟著波向右跑！</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="wave-play-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-500 text-white hover:bg-sky-400 transition-smooth">
+              暫停動畫
+            </button>
+            <button id="wave-reset-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium panel-subtle hover:border-sky-500/40 transition-smooth">
+              重設預設
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-xl overflow-hidden hairline bg-[#09090B] relative">
+          <canvas id="wave-canvas" class="w-full h-64 sm:h-72 block"></canvas>
+        </div>
+
+        <!-- Wave Readouts -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="panel-subtle rounded-xl p-3">
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400">波長 λ (= v / f)</div>
+            <div id="sim-wave-lambda" class="text-lg font-semibold tabular-nums text-sky-500 dark:text-sky-400">4.00 m</div>
+          </div>
+          <div class="panel-subtle rounded-xl p-3">
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400">週期 T (= 1 / f)</div>
+            <div id="sim-wave-period" class="text-lg font-semibold tabular-nums">1.00 s</div>
+          </div>
+          <div class="panel-subtle rounded-xl p-3">
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400">頻率 f</div>
+            <div id="sim-wave-freq-out" class="text-lg font-semibold tabular-nums">1.0 Hz</div>
+          </div>
+          <div class="panel-subtle rounded-xl p-3">
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400">振幅 A</div>
+            <div id="sim-wave-amp-out" class="text-lg font-semibold tabular-nums">1.5 m</div>
+          </div>
+        </div>
+
+        <!-- Wave Sliders -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <label class="space-y-1.5 block">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">振幅 A（影響響度／能量）</span>
+              <span id="val-wave-amp" class="font-medium tabular-nums">1.5 m</span>
+            </div>
+            <input id="slider-wave-amp" type="range" min="0.5" max="2.5" step="0.1" value="1.5" class="w-full" />
+          </label>
+          <label class="space-y-1.5 block">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">頻率 f（影響音調）</span>
+              <span id="val-wave-freq" class="font-medium tabular-nums">1.0 Hz</span>
+            </div>
+            <input id="slider-wave-freq" type="range" min="0.4" max="2.5" step="0.1" value="1.0" class="w-full" />
+          </label>
+          <label class="space-y-1.5 block">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">波速 v（由介質決定）</span>
+              <span id="val-wave-speed" class="font-medium tabular-nums">4.0 m/s</span>
+            </div>
+            <input id="slider-wave-speed" type="range" min="2.0" max="8.0" step="0.2" value="4.0" class="w-full" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Lens Ray Simulator Panel -->
+      <div id="sim-panel-lens" class="hidden panel rounded-2xl p-4 sm:p-6 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-semibold tracking-tight">凹凸透鏡光路成像模擬（可直接在畫布拖曳物體）</h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">用滑鼠或手指左右拖曳綠色箭頭，即時觀察三條主光線與實像／虛像變化。</p>
+          </div>
+          <div class="flex items-center gap-1.5 p-1 rounded-xl panel-subtle">
+            <button id="sim-lens-convex" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-500/20 text-violet-400 border border-violet-500/30">
+              凸透鏡（會聚）
+            </button>
+            <button id="sim-lens-concave" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 border border-transparent">
+              凹透鏡（發散）
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-xl overflow-hidden hairline bg-[#09090B] relative touch-none select-none">
+          <canvas id="lens-canvas" class="w-full h-72 sm:h-80 block cursor-grab active:cursor-grabbing"></canvas>
+        </div>
+
+        <!-- Lens Live Properties -->
+        <div id="sim-lens-readout" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Lens Sliders & Quick Zone Buttons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label class="space-y-1.5 block">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">物距 p（拖曳物體會同步更新）</span>
+              <span id="val-lens-p" class="font-medium tabular-nums">30 cm</span>
+            </div>
+            <input id="slider-lens-p" type="range" min="4" max="50" step="1" value="30" class="w-full" />
+          </label>
+          <label class="space-y-1.5 block">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">焦距 f（絕對值）</span>
+              <span id="val-lens-f" class="font-medium tabular-nums">12 cm</span>
+            </div>
+            <input id="slider-lens-f" type="range" min="6" max="20" step="1" value="12" class="w-full" />
+          </label>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">快速跳到經典區間：</span>
+          <button data-zone="gt2f" class="lens-zone-btn px-2.5 py-1 rounded-lg text-xs panel-subtle hover:border-violet-500/40">p &gt; 2f（縮小倒立實像）</button>
+          <button data-zone="eq2f" class="lens-zone-btn px-2.5 py-1 rounded-lg text-xs panel-subtle hover:border-violet-500/40">p = 2f（等大倒立實像）</button>
+          <button data-zone="between" class="lens-zone-btn px-2.5 py-1 rounded-lg text-xs panel-subtle hover:border-violet-500/40">f &lt; p &lt; 2f（放大倒立實像）</button>
+          <button data-zone="eqf" class="lens-zone-btn px-2.5 py-1 rounded-lg text-xs panel-subtle hover:border-violet-500/40">p = f（不成像）</button>
+          <button data-zone="ltf" class="lens-zone-btn px-2.5 py-1 rounded-lg text-xs panel-subtle hover:border-violet-500/40">p &lt; f（放大正立虛像）</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: QUIZ ==================== -->
+    <section id="view-quiz" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-lg sm:text-xl font-semibold tracking-tight">隨堂隨機出題與即時批改</h1>
+          <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">涵蓋移動回聲、波速、平面鏡、透鏡成像與色光判別，答錯會自動展開詳解與口訣。</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="panel-subtle rounded-xl px-3.5 py-2 flex items-center gap-4 text-xs tabular-nums">
+            <div>已作答 <strong id="quiz-total" class="text-sm">0</strong> 題</div>
+            <div>正確率 <strong id="quiz-acc" class="text-sm text-emerald-500 dark:text-emerald-400">0%</strong></div>
+          </div>
+          <button id="quiz-reset-stats" type="button" class="px-3 py-2 rounded-xl text-xs panel-subtle text-zinc-500 hover:text-rose-400 transition-smooth">
+            歸零紀錄
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button data-qcat="mixed" class="qcat-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-500/15 text-sky-400 border border-sky-500/30">綜合隨機</button>
+        <button data-qcat="waves" class="qcat-btn px-3 py-1.5 rounded-lg text-xs font-medium panel-subtle text-zinc-500 dark:text-zinc-400">只出波動與聲學</button>
+        <button data-qcat="optics" class="qcat-btn px-3 py-1.5 rounded-lg text-xs font-medium panel-subtle text-zinc-500 dark:text-zinc-400">只出基礎光學與色彩</button>
+      </div>
+
+      <div id="quiz-card" class="panel rounded-2xl p-5 sm:p-6 space-y-5">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ==================== SAFE STORAGE & THEME ====================
+    const Storage = {
+      get(key, fallback) {
+        try {
+          const val = localStorage.getItem(key);
+          return val !== null ? JSON.parse(val) : fallback;
+        } catch (e) {
+          return fallback;
+        }
+      },
+      set(key, val) {
+        try {
+          localStorage.setItem(key, JSON.stringify(val));
+        } catch (e) {}
+      }
+    };
+
+    function applyTheme(mode) {
+      const html = document.documentElement;
+      const header = document.querySelector('header');
+      if (mode === 'light') {
+        html.classList.remove('dark');
+        header.classList.remove('bg-[#09090B]/80', 'border-white/[0.08]');
+        header.classList.add('bg-white/85', 'border-zinc-200');
+      } else {
+        html.classList.add('dark');
+        header.classList.remove('bg-white/85', 'border-zinc-200');
+        header.classList.add('bg-[#09090B]/80', 'border-white/[0.08]');
+      }
+      Storage.set('physics_theme', mode);
+    }
+
+    const savedTheme = Storage.get('physics_theme', 'dark');
+    applyTheme(savedTheme);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+      applyTheme(next);
+    });
+
+    // ==================== HELPERS ====================
+    function fmt(num, digits = 2) {
+      if (!Number.isFinite(num)) return '—';
+      const rounded = Number(num.toFixed(digits));
+      return String(rounded);
+    }
+
+    function numVal(id) {
+      const el = document.getElementById(id);
+      if (!el) return NaN;
+      return parseFloat(el.value);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // ==================== TOPICS CATALOG ====================
+    const TOPICS = [
+      {
+        id: 'echo',
+        cat: 'waves',
+        tag: '波動與聲學',
+        title: '聲速與回聲測距（含船／蝙蝠移動）',
+        keywords: '回聲 船 蝙蝠 車 懸崖 山谷 氣溫 聲速 雙回聲 測速 超音波',
+        desc: '涵蓋靜止測距、船隻／蝙蝠前進與遠離雙距離、山谷雙回聲與雙次發聲測速，附動態路徑圖。',
+        tutorScript: '遇到回聲題先問一句：「聲音跑出去又跑回來，有沒有人也在動？」如果都沒動，聲音走兩個距離（除以 2）；如果有船或蝙蝠在動，就畫一條線段圖：往牆壁開，聲音和船「合起來」湊成兩個原距離；遠離牆壁開，聲音比船「多跑」兩個原距離！',
+        traps: [
+          '最常錯：沒看清楚題目問的是「發聲瞬間」的距離，還是「聽到回聲瞬間」的距離！兩者會差一個物體移動距離。',
+          '單位陷阱：題目給 km/h 要先除以 3.6 換成 m/s，或給氣溫時要先用 v = 331 + 0.6T 算聲速。',
+          '雙次發聲測速：兩次撞到牆壁的瞬間間隔不是發聲間隔 ΔT，而是 ΔT + (t₂ - t₁) / 2。'
+        ]
+      },
+      {
+        id: 'wave-read',
+        cat: 'waves',
+        tag: '波動與聲學',
+        title: '波形判讀與基本換算',
+        keywords: '波長 振幅 波峰 波谷 橫波 縱波 週期 頻率 波形',
+        desc: '輸入總長、波數、時間與高度，自動求出波長 λ、振幅 A、週期 T、頻率 f 與波速 v。',
+        tutorScript: '把波想像成一條規律的跳繩：一個完整波包含「一個波峰＋一個波谷」（或相鄰兩波峰之間）。振幅是從「中間平衡線」量到最高點，不是從最底量到最高喔！',
+        traps: [
+          '波峰到波谷的「垂直總高度」是 2 倍振幅（2A），別直接當成振幅。',
+          '相鄰「波峰到波谷」的水平距離只有半個波長（0.5λ），不是一個波長。',
+          '橫波振動方向垂直前進方向（繩波、水波、光波）；縱波振動方向平行前進方向（聲波）。'
+        ]
+      },
+      {
+        id: 'wave-vfl',
+        cat: 'waves',
+        tag: '波動與聲學',
+        title: '週期、頻率與波速反推',
+        keywords: '週期 頻率 波速 v=fλ 單位換算 介質 波源',
+        desc: '透過 f = 1/T 與 v = fλ，任選未知數自動反推並處理 cm/s 與 m/s 換算。',
+        tutorScript: '記住黃金口訣：「波速看介質、頻率看波源」。只要介質沒變（例如都在同一條繩子或同溫度的空氣），波速 v 就固定不變，這時候甩得越快（頻率變大），波長就會被擠得越短！',
+        traps: [
+          '把週期 T（秒/次）和頻率 f（次/秒，Hz）搞反：兩者互為倒數，乘起來一定等於 1。',
+          '波從空氣進到水中，頻率 f 不變，但波速 v 改變，所以波長 λ 跟著改變。'
+        ]
+      },
+      {
+        id: 'sound-props',
+        cat: 'waves',
+        tag: '波動與聲學',
+        title: '聲音三要素與樂器音調判別',
+        keywords: '響度 音調 音色 振幅 頻率 波形 弦樂器 管樂器 吹氣 敲擊 分貝',
+        desc: '快速對照響度、音調、音色，以及弦樂器與水瓶「吹氣 vs. 敲擊」的高低音判別。',
+        tutorScript: '三要素口訣：「大聲小聲看振幅（響度）、高音低音看頻率（音調）、聽出是誰看波形（音色）」。水瓶題要抓「誰在振動」：用嘴吹是空氣柱在振動（水越少空氣柱越長→越低音）；用筷子敲是瓶身和水在振動（水越少越輕→越高音）。',
+        traps: [
+          '用力敲鼓只會變大聲（響度↑），音調（頻率）和波速都不會變！',
+          '弦樂器變高音的口訣：「短、細、緊」頻率高；「長、粗、鬆」頻率低。'
+        ]
+      },
+      {
+        id: 'lens',
+        cat: 'optics',
+        tag: '基礎光學與色彩',
+        title: '凸透鏡與凹透鏡成像判讀器',
+        keywords: '凸透鏡 凹透鏡 焦距 物距 像距 實像 虛像 放大鏡 照相機 投影機 2F',
+        desc: '輸入焦距 f 與物距 p，精準判讀所有區間、像距、放大率、成像性質與移動方向。',
+        tutorScript: '凸透鏡記住兩條分界線：「焦點 F 分實虛，兩倍焦距 2F 分大小」。只要在 F 外面都是倒立實像，越靠近 F 像會跑越遠、越大；跨進 F 裡面就變成正立放大虛像（放大鏡）。凹透鏡最省事：不管放哪裡，永遠都是「正立縮小虛像」！',
+        traps: [
+          '物體放在焦點（p = f）上時，折射光互相平行，不會成像！',
+          '「實像」一定倒立且可投影在紙屏上；「虛像」一定正立且只能用眼睛往鏡子裡看，無法投影在紙屏。',
+          '物體擋住凸透鏡上半部時，像還是「完整的」，只是進光量變少、亮度變暗！'
+        ]
+      },
+      {
+        id: 'plane-mirror',
+        cat: 'optics',
+        tag: '基礎光學與色彩',
+        title: '光的反射與平面鏡成像',
+        keywords: '反射定律 入射角 反射角 平面鏡 最小鏡長 雙平面鏡 視野 速度',
+        desc: '計算入射角／鏡面夾角、人像距離與相對速度、全身最小鏡長與雙鏡成像數。',
+        tutorScript: '入射角與反射角永遠是跟「法線（垂直鏡面的虛線）」夾的角，不是跟鏡面夾的角！平面鏡成像就像照鏡子：人退 1 公尺，像也退 1 公尺，所以人跟像的距離一次拉開 2 公尺。',
+        traps: [
+          '題目常給「光線與鏡面夾 30°」，入射角其實是 90° - 30° = 60°！',
+          '看清全身所需的最小平面鏡長度只需要「身高的一半」，而且跟你站多遠無關！',
+          '粗糙紙張的漫反射「依然遵守」反射定律，只是每個點的法線方向不同。'
+        ]
+      },
+      {
+        id: 'pinhole',
+        cat: 'optics',
+        tag: '基礎光學與色彩',
+        title: '光的直進與針孔成像',
+        keywords: '針孔成像 光的直進 像高 物高 相似三角形 顛倒',
+        desc: '利用相似三角形比例計算像高與放大率，並解析針孔大小對成像的影響。',
+        tutorScript: '針孔成像就是光走直線穿過小洞，左右形成兩個背對背的相似三角形，所以直接記比例：「像高 ÷ 物高 ＝ 像距 ÷ 物距」。紙屏往後拉越遠，像就越大（但會稍微變暗）。',
+        traps: [
+          '針孔成像一定是「上下顛倒、左右相反」的實像，而且像的形狀跟針孔形狀無關（方形孔照出太陽仍是圓的）。',
+          '針孔開得太大時，會讓太多光線重疊，畫面會「變亮但變模糊」，最後只剩一片亮斑。'
+        ]
+      },
+      {
+        id: 'refraction',
+        cat: 'optics',
+        tag: '基礎光學與色彩',
+        title: '光的折射與視深判別',
+        keywords: '折射 法線 視深 筷子 池底 水 玻璃 空氣 光速',
+        desc: '切換光線行進介質，即時判斷偏向或偏離法線、折射角大小與視深高低。',
+        tutorScript: '記住超好用口訣：「快大慢小」（光速越快的介質，光線與法線夾角越大）。光速大小：空氣 ＞ 水 ＞ 玻璃。所以光從空氣進到水（變慢），角度變小＝偏向法線！看水底的魚時，光從水出來到空氣（變快偏離法線），眼睛往回延伸會覺得魚「變淺、變高」了。',
+        traps: [
+          '光線「垂直射入」介面（入射角 = 0°）時，光速會改變，但前進方向不會偏折！',
+          '岸上看水中物體（池底、魚）會覺得「變淺」；反過來在水中看岸上（樹、鳥）會覺得「變高」。'
+        ]
+      },
+      {
+        id: 'vision-color',
+        cat: 'optics',
+        tag: '基礎光學與色彩',
+        title: '視力矯正與色光／物體顏色',
+        keywords: '近視 遠視 凹透鏡 凸透鏡 色光三原色 紅綠藍 濾光片 顏色 反射 吸收',
+        desc: '判別近視／遠視配鏡原理，並互動模擬色光疊加與「色光照物體」所見顏色。',
+        tutorScript: '物體顏色原則只有一句：「物體只會反射它自己擁有的色光，其他全部吸收掉」。例如紅蘋果只反射紅光；在純綠光下沒有紅光可反射，全部被吸收，人眼看到的就是「黑色」！',
+        traps: [
+          '近視眼是成像在視網膜「前方」（聚太早），所以要戴「凹透鏡」先把光發散一點；遠視眼成像在「後方」，戴「凸透鏡」。',
+          '黃色物體可以反射「紅光＋綠光」，所以在純紅光下看黃紙會呈現「紅色」，純綠光下呈現「綠色」，純藍光下則是「黑色」！'
+        ]
+      }
+    ];
+
+    // ==================== STATE ====================
+    let activeMainTab = 'solvers';
+    let activeCategory = 'all';
+    let activeTopicId = 'echo';
+    let searchQuery = '';
+    let globalMask = false;
+    let localMaskOverride = {};
+
+    // ==================== TAB SWITCHING ====================
+    function switchMainTab(tab) {
+      activeMainTab = tab;
+      ['solvers', 'sims', 'quiz'].forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const isActive = t === tab;
+        view.classList.toggle('hidden', !isActive);
+        btn.setAttribute('aria-selected', String(isActive));
+        if (isActive) {
+          btn.className = 'main-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-smooth bg-sky-500/15 text-sky-500 dark:text-sky-300 border border-sky-500/30';
+        } else {
+          btn.className = 'main-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-smooth text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-transparent';
+        }
+      });
+
+      if (tab === 'sims') {
+        requestAnimationFrame(() => {
+          resizeWaveCanvas();
+          resizeLensCanvas();
+          drawLensSim();
+        });
+      }
+    }
+
+    document.querySelectorAll('.main-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchMainTab(btn.dataset.tab));
+    });
+
+    // ==================== TOPIC LIST RENDERING ====================
+    function getFilteredTopics() {
+      const q = searchQuery.trim().toLowerCase();
+      return TOPICS.filter(t => {
+        if (activeCategory !== 'all' && t.cat !== activeCategory) return false;
+        if (!q) return true;
+        return (t.title + ' ' + t.keywords + ' ' + t.desc).toLowerCase().includes(q);
+      });
+    }
+
+    function renderTopicList() {
+      const list = document.getElementById('topic-list');
+      const items = getFilteredTopics();
+      if (items.length === 0) {
+        list.innerHTML = `<div class="panel-subtle rounded-xl p-4 text-xs text-zinc-500">找不到符合「${escapeHtml(searchQuery)}」的題型</div>`;
+        return;
+      }
+      if (!items.some(i => i.id === activeTopicId)) {
+        activeTopicId = items[0].id;
+      }
+
+      list.innerHTML = items.map(t => {
+        const isAct = t.id === activeTopicId;
+        const badgeColor = t.cat === 'waves'
+          ? 'text-sky-500 dark:text-sky-400 bg-sky-500/10 border-sky-500/20'
+          : 'text-violet-500 dark:text-violet-400 bg-violet-500/10 border-violet-500/20';
+        const activeStyle = isAct
+          ? 'border-sky-500/50 bg-sky-500/[0.08] dark:bg-sky-500/[0.10]'
+          : 'hover:border-zinc-400/40 dark:hover:border-white/20';
+        return `
+          <button type="button" data-topic="${t.id}"
+            class="topic-item-btn text-left shrink-0 w-60 lg:w-full panel rounded-xl p-3 transition-smooth ${activeStyle}">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-md border ${badgeColor}">${t.tag}</span>
+              ${isAct ? '<span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>' : ''}
+            </div>
+            <div class="text-xs sm:text-sm font-semibold tracking-tight leading-snug">${t.title}</div>
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 hidden lg:block">${t.desc}</div>
+          </button>
+        `;
+      }).join('');
+
+      list.querySelectorAll('.topic-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTopicId = btn.dataset.topic;
+          renderTopicList();
+          renderActiveSolver();
+        });
+      });
+    }
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.cat;
+        document.querySelectorAll('.cat-btn').forEach(b => {
+          const on = b.dataset.cat === activeCategory;
+          b.className = on
+            ? 'cat-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
+            : 'cat-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth panel-subtle text-zinc-600 dark:text-zinc-300 hover:border-sky-500/40';
+        });
+        renderTopicList();
+        renderActiveSolver();
+      });
+    });
+
+    document.getElementById('topic-search').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderTopicList();
+      renderActiveSolver();
+    });
+
+    document.getElementById('global-mask-btn').addEventListener('click', () => {
+      globalMask = !globalMask;
+      localMaskOverride = {};
+      document.getElementById('global-mask-label').textContent = globalMask ? '解答遮罩：開' : '解答遮罩：關';
+      updateMaskVisual();
+    });
+
+    function isCurrentlyMasked() {
+      if (activeTopicId in localMaskOverride) return localMaskOverride[activeTopicId];
+      return globalMask;
+    }
+
+    function updateMaskVisual() {
+      const box = document.getElementById('solver-answer-body');
+      const btn = document.getElementById('local-mask-toggle');
+      if (!box || !btn) return;
+      const masked = isCurrentlyMasked();
+      box.classList.toggle('answer-masked', masked);
+      btn.textContent = masked ? '點擊展開解答' : '隱藏解答（提問模式）';
+    }
+
+    // ==================== SOLVER SHELL TEMPLATE ====================
+    function renderActiveSolver() {
+      const topic = TOPICS.find(t => t.id === activeTopicId) || TOPICS[0];
+      const stage = document.getElementById('solver-stage');
+      const badgeClass = topic.cat === 'waves'
+        ? 'text-sky-500 dark:text-sky-400 bg-sky-500/10 border-sky-500/20'
+        : 'text-violet-500 dark:text-violet-400 bg-violet-500/10 border-violet-500/20';
+
+      stage.innerHTML = `
+        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-200 dark:border-white/[0.08] pb-4">
+          <div class="space-y-1">
+            <span class="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeClass}">${topic.tag}</span>
+            <h2 class="text-lg sm:text-xl font-semibold tracking-tight">${topic.title}</h2>
+            <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">${topic.desc}</p>
+          </div>
+          <button id="local-mask-toggle" type="button"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium panel-subtle hover:border-sky-500/40 transition-smooth shrink-0">
+            隱藏解答（提問模式）
+          </button>
+        </div>
+
+        <div id="solver-controls" class="space-y-4"></div>
+
+        <!-- Step-by-step Answer Section -->
+        <div class="rounded-xl panel-subtle p-4 space-y-3 relative">
+          <div class="flex items-center justify-between">
+            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              分步推導與答案
+            </div>
+          </div>
+          <div id="solver-answer-body" class="space-y-3 transition-smooth"></div>
+        </div>
+
+        <!-- Tutor Teaching Guide -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <div class="rounded-xl p-4 bg-sky-500/[0.06] border border-sky-500/20 space-y-1.5">
+            <div class="text-xs font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              怎麼口語講解（白話口訣）
+            </div>
+            <p class="text-xs sm:text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">${topic.tutorScript}</p>
+          </div>
+          <div class="rounded-xl p-4 bg-rose-500/[0.06] border border-rose-500/20 space-y-1.5">
+            <div class="text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              常見迷思與易錯陷阱
+            </div>
+            <ul class="text-xs sm:text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 space-y-1 list-disc pl-4">
+              ${topic.traps.map(tr => `<li>${tr}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('local-mask-toggle').addEventListener('click', () => {
+        localMaskOverride[activeTopicId] = !isCurrentlyMasked();
+        updateMaskVisual();
+      });
+
+      const builders = {
+        'echo': buildEchoSolver,
+        'wave-read': buildWaveReadSolver,
+        'wave-vfl': buildWaveVflSolver,
+        'sound-props': buildSoundPropsSolver,
+        'lens': buildLensSolver,
+        'plane-mirror': buildPlaneMirrorSolver,
+        'pinhole': buildPinholeSolver,
+        'refraction': buildRefractionSolver,
+        'vision-color': buildVisionColorSolver,
+      };
+      (builders[topic.id] || buildEchoSolver)();
+      updateMaskVisual();
+    }
+
+    // ==================== 1. ECHO SOLVER (STATIC, MOVING SHIP/BAT, VALLEY, DUAL PULSE) ====================
+    let echoMode = 'moving'; // 'static' | 'moving' | 'valley' | 'dual'
+    let echoDir = 'toward'; // 'toward' | 'away'
+    let echoGoal = 'dist';  // 'dist' | 'vobj' | 'time'
+
+    function buildEchoSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <!-- Mode Switcher -->
+        <div class="flex flex-wrap gap-1.5">
+          <button data-emode="moving" class="emode-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth">移動中（船／蝙蝠／車）</button>
+          <button data-emode="static" class="emode-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth">靜止回聲測距</button>
+          <button data-emode="valley" class="emode-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth">兩側山壁雙回聲</button>
+          <button data-emode="dual" class="emode-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth">雙次發聲測速（蝙蝠／聲納）</button>
+        </div>
+
+        <!-- Preset Examples -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="text-zinc-500 dark:text-zinc-400">一鍵範例：</span>
+          <button id="ex-ship" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">船隻鳴笛駛向懸崖</button>
+          <button id="ex-bat" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">蝙蝠飛行發射超音波</button>
+          <button id="ex-car" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">車輛遠離山壁鳴笛</button>
+          <button id="ex-valley" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">山谷雙回聲</button>
+          <button id="ex-sonar" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">聲納雙次測速</button>
+        </div>
+
+        <!-- Sound Speed / Temperature Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl panel-subtle">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">氣溫 T（°C，輸入會自動更新空氣聲速）</span>
+            <input id="echo-temp" type="number" step="1" value="15" class="input-field w-full px-3 py-1.5 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">聲速 v<sub>聲</sub>（m/s，可直接改為 340 或水中 1500）</span>
+            <input id="echo-vs" type="number" step="0.1" value="340" class="input-field w-full px-3 py-1.5 rounded-lg text-sm tabular-nums" />
+          </label>
+        </div>
+
+        <div id="echo-dynamic-inputs" class="space-y-3"></div>
+      `;
+
+      function refreshModeButtons() {
+        c.querySelectorAll('.emode-btn').forEach(b => {
+          const on = b.dataset.emode === echoMode;
+          b.className = on
+            ? 'emode-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth bg-sky-500/15 text-sky-500 dark:text-sky-300 border border-sky-500/30'
+            : 'emode-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth panel-subtle text-zinc-500 dark:text-zinc-400';
+        });
+      }
+
+      function renderEchoInputs(defaults = {}) {
+        const box = document.getElementById('echo-dynamic-inputs');
+        if (echoMode === 'static') {
+          box.innerHTML = `
+            <label class="space-y-1 block max-w-xs">
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">聽到回聲的總時間 t（秒）</span>
+              <input id="echo-t" type="number" step="0.1" value="${defaults.t ?? 4}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+            </label>
+          `;
+        } else if (echoMode === 'moving') {
+          box.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">移動方向</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button type="button" data-edir="toward" class="edir-btn px-2.5 py-2 rounded-lg text-xs font-medium transition-smooth">朝向障礙物前進</button>
+                  <button type="button" data-edir="away" class="edir-btn px-2.5 py-2 rounded-lg text-xs font-medium transition-smooth">遠離障礙物移動</button>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">題目要求什麼？</span>
+                <select id="echo-goal" class="input-field w-full px-3 py-2 rounded-lg text-xs sm:text-sm">
+                  <option value="dist" ${echoGoal === 'dist' ? 'selected' : ''}>求距離（同時算發聲時 d₀ 與回聲時 d₁）</option>
+                  <option value="vobj" ${echoGoal === 'vobj' ? 'selected' : ''}>求物體速度 v物（已知距離與時間）</option>
+                  <option value="time" ${echoGoal === 'time' ? 'selected' : ''}>求回聲時間 t（已知發聲時距離與速度）</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="echo-moving-fields"></div>
+          `;
+
+          const updateDirBtns = () => {
+            box.querySelectorAll('.edir-btn').forEach(b => {
+              const on = b.dataset.edir === echoDir;
+              b.className = on
+                ? 'edir-btn px-2.5 py-2 rounded-lg text-xs font-medium transition-smooth bg-sky-500/15 text-sky-500 dark:text-sky-300 border border-sky-500/30'
+                : 'edir-btn px-2.5 py-2 rounded-lg text-xs font-medium transition-smooth panel-subtle text-zinc-500 dark:text-zinc-400';
+            });
+          };
+          updateDirBtns();
+
+          const renderMovingFields = () => {
+            const mf = document.getElementById('echo-moving-fields');
+            if (echoGoal === 'dist') {
+              mf.innerHTML = `
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">物體速度 v<sub>物</sub></span>
+                  <div class="flex gap-1.5">
+                    <input id="echo-vo" type="number" step="0.5" value="${defaults.vo ?? 20}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+                    <select id="echo-vo-unit" class="input-field px-2 py-2 rounded-lg text-xs">
+                      <option value="ms" ${(defaults.voUnit ?? 'ms') === 'ms' ? 'selected' : ''}>m/s</option>
+                      <option value="kmh" ${defaults.voUnit === 'kmh' ? 'selected' : ''}>km/h</option>
+                    </select>
+                  </div>
+                </label>
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">經過時間 t（秒）</span>
+                  <input id="echo-t" type="number" step="0.1" value="${defaults.t ?? 4}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+                </label>
+              `;
+            } else if (echoGoal === 'vobj') {
+              mf.innerHTML = `
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">已知的是哪一個距離？</span>
+                  <select id="echo-known-dtype" class="input-field w-full px-3 py-2 rounded-lg text-xs sm:text-sm">
+                    <option value="d0">發聲瞬間距離 d₀（公尺）</option>
+                    <option value="d1">聽到回聲時距離 d₁（公尺）</option>
+                  </select>
+                </label>
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">已知距離數值（m）</span>
+                  <input id="echo-d" type="number" step="1" value="${defaults.d ?? 720}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+                </label>
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">經過時間 t（秒）</span>
+                  <input id="echo-t" type="number" step="0.1" value="${defaults.t ?? 4}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+                </label>
+              `;
+            } else {
+              mf.innerHTML = `
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">發聲瞬間距離 d₀（m）</span>
+                  <input id="echo-d0" type="number" step="1" value="${defaults.d0 ?? 720}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+                </label>
+                <label class="space-y-1 block">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">物體速度 v<sub>物</sub></span>
+                  <div class="flex gap-1.5">
+                    <input id="echo-vo" type="number" step="0.5" value="${defaults.vo ?? 20}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+                    <select id="echo-vo-unit" class="input-field px-2 py-2 rounded-lg text-xs">
+                      <option value="ms">m/s</option>
+                      <option value="kmh">km/h</option>
+                    </select>
+                  </div>
+                </label>
+              `;
+            }
+            mf.querySelectorAll('input, select').forEach(el => el.addEventListener('input', computeEcho));
+          };
+          renderMovingFields();
+
+          box.querySelectorAll('.edir-btn').forEach(b => {
+            b.addEventListener('click', () => {
+              echoDir = b.dataset.edir;
+              updateDirBtns();
+              computeEcho();
+            });
+          });
+
+          document.getElementById('echo-goal').addEventListener('change', e => {
+            echoGoal = e.target.value;
+            renderMovingFields();
+            computeEcho();
+          });
+        } else if (echoMode === 'valley') {
+          box.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label class="space-y-1 block">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">第 1 次聽到回聲時間 t₁（秒）</span>
+                <input id="echo-t1" type="number" step="0.1" value="${defaults.t1 ?? 2}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+              </label>
+              <label class="space-y-1 block">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">第 2 次聽到回聲時間 t₂（秒）</span>
+                <input id="echo-t2" type="number" step="0.1" value="${defaults.t2 ?? 3.5}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+              </label>
+            </div>
+          `;
+        } else if (echoMode === 'dual') {
+          box.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="space-y-1 block">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">兩次發聲的時間間隔 ΔT（秒）</span>
+                <input id="echo-dt" type="number" step="0.1" value="${defaults.dt ?? 2}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+              </label>
+              <label class="space-y-1 block">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">第 1 次收到回聲耗時 t₁（秒）</span>
+                <input id="echo-t1" type="number" step="0.05" value="${defaults.t1 ?? 0.6}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+              </label>
+              <label class="space-y-1 block">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">第 2 次收到回聲耗時 t₂（秒）</span>
+                <input id="echo-t2" type="number" step="0.05" value="${defaults.t2 ?? 0.4}" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+              </label>
+            </div>
+          `;
+        }
+
+        box.querySelectorAll('input, select').forEach(el => el.addEventListener('input', computeEcho));
+        computeEcho();
+      }
+
+      document.getElementById('echo-temp').addEventListener('input', () => {
+        const temp = numVal('echo-temp');
+        if (Number.isFinite(temp)) {
+          document.getElementById('echo-vs').value = fmt(331 + 0.6 * temp, 1);
+          computeEcho();
+        }
+      });
+      document.getElementById('echo-vs').addEventListener('input', computeEcho);
+
+      c.querySelectorAll('.emode-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          echoMode = b.dataset.emode;
+          refreshModeButtons();
+          renderEchoInputs();
+        });
+      });
+
+      // Presets
+      document.getElementById('ex-ship').addEventListener('click', () => {
+        echoMode = 'moving'; echoDir = 'toward'; echoGoal = 'dist';
+        document.getElementById('echo-temp').value = 15;
+        document.getElementById('echo-vs').value = 340;
+        refreshModeButtons();
+        renderEchoInputs({ vo: 20, voUnit: 'ms', t: 4 });
+      });
+      document.getElementById('ex-bat').addEventListener('click', () => {
+        echoMode = 'moving'; echoDir = 'toward'; echoGoal = 'dist';
+        document.getElementById('echo-temp').value = 15;
+        document.getElementById('echo-vs').value = 340;
+        refreshModeButtons();
+        renderEchoInputs({ vo: 10, voUnit: 'ms', t: 0.2 });
+      });
+      document.getElementById('ex-car').addEventListener('click', () => {
+        echoMode = 'moving'; echoDir = 'away'; echoGoal = 'dist';
+        document.getElementById('echo-temp').value = 15;
+        document.getElementById('echo-vs').value = 340;
+        refreshModeButtons();
+        renderEchoInputs({ vo: 72, voUnit: 'kmh', t: 3 });
+      });
+      document.getElementById('ex-valley').addEventListener('click', () => {
+        echoMode = 'valley';
+        document.getElementById('echo-temp').value = 15;
+        document.getElementById('echo-vs').value = 340;
+        refreshModeButtons();
+        renderEchoInputs({ t1: 2, t2: 3.5 });
+      });
+      document.getElementById('ex-sonar').addEventListener('click', () => {
+        echoMode = 'dual';
+        document.getElementById('echo-temp').value = 15;
+        document.getElementById('echo-vs').value = 340;
+        refreshModeButtons();
+        renderEchoInputs({ dt: 2, t1: 0.6, t2: 0.4 });
+      });
+
+      refreshModeButtons();
+      renderEchoInputs({ vo: 20, voUnit: 'ms', t: 4 });
+    }
+
+    function buildEchoSvg(dir, d0, d1, soundDist, objDist) {
+      const isToward = dir === 'toward';
+      const xWall = 440;
+      const xA = isToward ? 70 : 190;
+      const xB = isToward ? 190 : 70;
+      return `
+        <div class="rounded-xl bg-[#09090B] hairline p-3 overflow-x-auto">
+          <div class="text-[11px] text-zinc-400 mb-1.5">動態路徑示意圖（A：發聲位置 → B：聽到回聲位置 → C：懸崖／牆壁）</div>
+          <svg viewBox="0 0 500 135" class="w-full max-w-xl h-auto mx-auto">
+            <defs>
+              <marker id="arr-sky" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8" />
+              </marker>
+              <marker id="arr-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B" />
+              </marker>
+            </defs>
+            <!-- Ground line -->
+            <line x1="30" y1="95" x2="460" y2="95" stroke="#3F3F46" stroke-width="1.5" />
+            <!-- Cliff Wall C -->
+            <rect x="440" y="20" width="16" height="75" rx="3" fill="#27272A" stroke="#71717A" stroke-width="1.5" />
+            <text x="448" y="114" fill="#A1A1AA" font-size="11" text-anchor="middle">C 障礙物</text>
+
+            <!-- Sound path: A -> Wall -> B -->
+            <path d="M ${xA} 52 L ${xWall - 4} 52 L ${xWall - 4} 68 L ${xB + 4} 68" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-sky)" />
+            <text x="${(xA + xWall) / 2}" y="42" fill="#38BDF8" font-size="11" text-anchor="middle">聲音總路程 = ${fmt(soundDist)} m</text>
+
+            <!-- Object path: A -> B -->
+            <line x1="${xA}" y1="84" x2="${xB + (isToward ? -6 : 6)}" y2="84" stroke="#F59E0B" stroke-width="2.5" marker-end="url(#arr-amber)" />
+            <text x="${(xA + xB) / 2}" y="128" fill="#F59E0B" font-size="11" text-anchor="middle">物體移動 ${fmt(objDist)} m</text>
+
+            <!-- Points A & B -->
+            <circle cx="${xA}" cy="95" r="4.5" fill="#F59E0B" />
+            <text x="${xA}" y="112" fill="#F4F4F5" font-size="11" text-anchor="middle">A 發聲點</text>
+            <circle cx="${xB}" cy="95" r="4.5" fill="#34D399" />
+            <text x="${xB}" y="112" fill="#34D399" font-size="11" text-anchor="middle">B 回聲點</text>
+
+            <!-- d0 / d1 badge -->
+            <text x="20" y="20" fill="#E4E4E7" font-size="11">發聲時 d₀ = ${fmt(d0)} m ｜ 聽到回聲時 d₁ = ${fmt(d1)} m</text>
+          </svg>
+        </div>
+      `;
+    }
+
+    function computeEcho() {
+      const out = document.getElementById('solver-answer-body');
+      const vs = numVal('echo-vs');
+      if (!Number.isFinite(vs) || vs <= 0) {
+        out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的聲速 v<sub>聲</sub>。</div>`;
+        return;
+      }
+
+      if (echoMode === 'static') {
+        const t = numVal('echo-t');
+        if (!Number.isFinite(t) || t <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的回聲時間 t。</div>`;
+          return;
+        }
+        const d = (vs * t) / 2;
+        out.innerHTML = `
+          <div class="text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            與障礙物距離 d ＝ ${fmt(d)} m
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>使用公式：聲音來回走兩倍距離，<code>2d = v<sub>聲</sub> × t</code> ⇒ <code>d = (v<sub>聲</sub> × t) ÷ 2</code></li>
+            <li>代入數值：<code>d = (${fmt(vs)} × ${fmt(t)}) ÷ 2 = ${fmt(vs * t)} ÷ 2</code></li>
+            <li>最終結果：距離障礙物 <strong>${fmt(d)} 公尺</strong>。</li>
+          </ol>
+        `;
+        return;
+      }
+
+      if (echoMode === 'moving') {
+        const isToward = echoDir === 'toward';
+        if (echoGoal === 'dist') {
+          let voRaw = numVal('echo-vo');
+          const unit = document.getElementById('echo-vo-unit')?.value || 'ms';
+          const t = numVal('echo-t');
+          if (!Number.isFinite(voRaw) || voRaw < 0 || !Number.isFinite(t) || t <= 0) {
+            out.innerHTML = `<div class="text-xs text-rose-400">請輸入正確的物體速度（≥ 0）與時間（&gt; 0）。</div>`;
+            return;
+          }
+          const vo = unit === 'kmh' ? voRaw / 3.6 : voRaw;
+          if (vo >= vs) {
+            out.innerHTML = `<div class="text-xs text-rose-400">物理防呆提醒：物體速度（${fmt(vo)} m/s）已大於或等於聲速（${fmt(vs)} m/s），達超音速或已先撞上障礙物，無法依常規收到回聲。</div>`;
+            return;
+          }
+          const soundDist = vs * t;
+          const objDist = vo * t;
+          const d0 = isToward ? (soundDist + objDist) / 2 : (soundDist - objDist) / 2;
+          const d1 = isToward ? d0 - objDist : d0 + objDist;
+          if (d0 <= 0 || d1 < 0) {
+            out.innerHTML = `<div class="text-xs text-rose-400">計算結果出現負距離，代表物體在聽到回聲前就已抵達障礙物。</div>`;
+            return;
+          }
+          const unitNote = unit === 'kmh' ? `<li>單位換算：<code>${fmt(voRaw)} km/h ÷ 3.6 = ${fmt(vo)} m/s</code></li>` : '';
+          out.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 tabular-nums">
+              <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25">
+                <div class="text-[11px] text-amber-600 dark:text-amber-300 font-medium">發聲瞬間距離 d₀</div>
+                <div class="text-xl font-bold text-amber-600 dark:text-amber-400">${fmt(d0)} m</div>
+              </div>
+              <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
+                <div class="text-[11px] text-emerald-600 dark:text-emerald-300 font-medium">聽到回聲時距離 d₁</div>
+                <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400">${fmt(d1)} m</div>
+              </div>
+            </div>
+            ${buildEchoSvg(echoDir, d0, d1, soundDist, objDist)}
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+              ${unitNote}
+              <li>算出這 ${fmt(t)} 秒內各自走的距離：聲音走了 <code>${fmt(vs)} × ${fmt(t)} = ${fmt(soundDist)} m</code>；物體移動了 <code>${fmt(vo)} × ${fmt(t)} = ${fmt(objDist)} m</code>。</li>
+              <li>${isToward
+                ? `朝向障礙物前進，兩者路程相加剛好等於 2 倍原距離：<code>d₀ = (${fmt(soundDist)} + ${fmt(objDist)}) ÷ 2 = ${fmt(d0)} m</code>`
+                : `遠離障礙物移動，聲音比物體多走了 2 倍原距離：<code>d₀ = (${fmt(soundDist)} − ${fmt(objDist)}) ÷ 2 = ${fmt(d0)} m</code>`}</li>
+              <li>聽到回聲時與障礙物距離：<code>d₁ = ${fmt(d0)} ${isToward ? '−' : '+'} ${fmt(objDist)} = ${fmt(d1)} m</code>。</li>
+            </ol>
+          `;
+          return;
+        }
+
+        if (echoGoal === 'vobj') {
+          const dtype = document.getElementById('echo-known-dtype')?.value || 'd0';
+          const d = numVal('echo-d');
+          const t = numVal('echo-t');
+          if (!Number.isFinite(d) || d <= 0 || !Number.isFinite(t) || t <= 0) {
+            out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的距離與時間。</div>`;
+            return;
+          }
+          // Toward: 2d0 = (vs + vo)t => vo = 2d0/t - vs;  2d1 = (vs - vo)t => vo = vs - 2d1/t
+          // Away:   2d0 = (vs - vo)t => vo = vs - 2d0/t;  2d1 = (vs + vo)t => vo = 2d1/t - vs
+          let vo;
+          if (isToward) {
+            vo = dtype === 'd0' ? (2 * d) / t - vs : vs - (2 * d) / t;
+          } else {
+            vo = dtype === 'd0' ? vs - (2 * d) / t : (2 * d) / t - vs;
+          }
+          if (vo < 0 || vo >= vs) {
+            out.innerHTML = `<div class="text-xs text-rose-400">輸入的距離與時間在「${isToward ? '朝向' : '遠離'}」方向下不合理（算出速度 ${fmt(vo)} m/s），請檢查距離種類（d₀ 或 d₁）與方向是否選反。</div>`;
+            return;
+          }
+          const d0 = dtype === 'd0' ? d : (isToward ? d + vo * t : d - vo * t);
+          const d1 = dtype === 'd1' ? d : (isToward ? d - vo * t : d + vo * t);
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+              物體移動速度 v<sub>物</sub> ＝ ${fmt(vo)} m/s（約 ${fmt(vo * 3.6)} km/h）
+            </div>
+            ${buildEchoSvg(echoDir, d0, d1, vs * t, vo * t)}
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+              <li>聲音在 ${fmt(t)} 秒內走了 <code>${fmt(vs * t)} m</code>，而兩倍已知距離為 <code>2 × ${fmt(d)} = ${fmt(2 * d)} m</code>。</li>
+              <li>兩者相減就是物體移動的距離：<code>|${fmt(2 * d)} − ${fmt(vs * t)}| = ${fmt(vo * t)} m</code>。</li>
+              <li>除以時間 ${fmt(t)} 秒，得出 <code>v<sub>物</sub> = ${fmt(vo * t)} ÷ ${fmt(t)} = ${fmt(vo)} m/s</code>。</li>
+            </ol>
+          `;
+          return;
+        }
+
+        // echoGoal === 'time'
+        const d0 = numVal('echo-d0');
+        let voRaw = numVal('echo-vo');
+        const unit = document.getElementById('echo-vo-unit')?.value || 'ms';
+        if (!Number.isFinite(d0) || d0 <= 0 || !Number.isFinite(voRaw) || voRaw < 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的發聲距離與正確的速度。</div>`;
+          return;
+        }
+        const vo = unit === 'kmh' ? voRaw / 3.6 : voRaw;
+        if (vo >= vs) {
+          out.innerHTML = `<div class="text-xs text-rose-400">物體速度已達或超過聲速，無法依常規收到回聲。</div>`;
+          return;
+        }
+        const t = isToward ? (2 * d0) / (vs + vo) : (2 * d0) / (vs - vo);
+        const d1 = isToward ? d0 - vo * t : d0 + vo * t;
+        const crashNote = isToward && vo > 0
+          ? `若維持等速前進，從發聲算起 <strong>${fmt(d0 / vo)} 秒</strong>後會抵達障礙物（聽到回聲後還剩 ${fmt(d1 / vo)} 秒）。`
+          : `持續遠離障礙物，不會碰撞。`;
+        out.innerHTML = `
+          <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            聽到回聲時間 t ＝ ${fmt(t, 3)} 秒（此時距障礙物 ${fmt(d1)} m）
+          </div>
+          ${buildEchoSvg(echoDir, d0, d1, vs * t, vo * t)}
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>公式：<code>t = 2d₀ ÷ (v<sub>聲</sub> ${isToward ? '+' : '−'} v<sub>物</sub>)</code></li>
+            <li>代入：<code>t = (2 × ${fmt(d0)}) ÷ (${fmt(vs)} ${isToward ? '+' : '−'} ${fmt(vo)}) = ${fmt(t, 3)} s</code></li>
+            <li>安全提醒：${crashNote}</li>
+          </ol>
+        `;
+        return;
+      }
+
+      if (echoMode === 'valley') {
+        const t1 = numVal('echo-t1');
+        const t2 = numVal('echo-t2');
+        if (!Number.isFinite(t1) || t1 <= 0 || !Number.isFinite(t2) || t2 <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的兩次回聲時間。</div>`;
+          return;
+        }
+        const d1 = (vs * t1) / 2;
+        const d2 = (vs * t2) / 2;
+        const total = d1 + d2;
+        out.innerHTML = `
+          <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            兩山壁總寬度 ＝ ${fmt(total)} m（近壁 ${fmt(Math.min(d1, d2))} m、遠壁 ${fmt(Math.max(d1, d2))} m）
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>往第 1 側山壁距離：<code>d₁ = (${fmt(vs)} × ${fmt(t1)}) ÷ 2 = ${fmt(d1)} m</code></li>
+            <li>往第 2 側山壁距離：<code>d₂ = (${fmt(vs)} × ${fmt(t2)}) ÷ 2 = ${fmt(d2)} m</code></li>
+            <li>山谷總寬度：<code>D = d₁ + d₂ = ${fmt(total)} m</code></li>
+          </ol>
+        `;
+        return;
+      }
+
+      // Dual pulse speed measurement
+      const dt = numVal('echo-dt');
+      const t1 = numVal('echo-t1');
+      const t2 = numVal('echo-t2');
+      if (!Number.isFinite(dt) || dt <= 0 || !Number.isFinite(t1) || t1 <= 0 || !Number.isFinite(t2) || t2 <= 0) {
+        out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的發聲間隔與兩次回聲時間。</div>`;
+        return;
+      }
+      const d1 = (vs * t1) / 2;
+      const d2 = (vs * t2) / 2;
+      const dtRef = dt + (t2 - t1) / 2;
+      if (dtRef <= 0) {
+        out.innerHTML = `<div class="text-xs text-rose-400">反射時間間隔小於或等於 0，請檢查輸入的 t₁、t₂ 與 ΔT。</div>`;
+        return;
+      }
+      const speed = Math.abs(d1 - d2) / dtRef;
+      const dirText = d2 < d1 ? '正在靠近' : (d2 > d1 ? '正在遠離' : '靜止不動');
+      out.innerHTML = `
+        <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+          平均移動速度 ＝ ${fmt(speed)} m/s（${dirText}，約 ${fmt(speed * 3.6)} km/h）
+        </div>
+        <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+          <li>第 1 次反射點距離：<code>d₁ = (${fmt(vs)} × ${fmt(t1)}) ÷ 2 = ${fmt(d1)} m</code></li>
+          <li>第 2 次反射點距離：<code>d₂ = (${fmt(vs)} × ${fmt(t2)}) ÷ 2 = ${fmt(d2)} m</code>，位移 <code>|d₁ − d₂| = ${fmt(Math.abs(d1 - d2))} m</code></li>
+          <li>兩次「撞到目標瞬間」的時間差：<code>Δt = ΔT + (t₂ − t₁) ÷ 2 = ${fmt(dt)} + (${fmt(t2)} − ${fmt(t1)}) ÷ 2 = ${fmt(dtRef, 3)} s</code></li>
+          <li>平均速度：<code>v = ${fmt(Math.abs(d1 - d2))} ÷ ${fmt(dtRef, 3)} = ${fmt(speed)} m/s</code></li>
+        </ol>
+      `;
+    }
+
+    // ==================== 2. WAVE READ SOLVER ====================
+    function buildWaveReadSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="text-zinc-500 dark:text-zinc-400">一鍵範例：</span>
+          <button id="ex-wr-1" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">2.5 個波共 50 cm、耗時 5 秒</button>
+          <button id="ex-wr-2" type="button" class="px-2.5 py-1 rounded-md panel-subtle hover:border-sky-500/40">3 個波共 1.2 m、耗時 0.6 秒</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">總水平長度 L</span>
+            <div class="flex gap-1">
+              <input id="wr-len" type="number" step="0.1" value="50" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+              <select id="wr-unit" class="input-field px-2 py-2 rounded-lg text-xs">
+                <option value="cm" selected>cm</option>
+                <option value="m">m</option>
+              </select>
+            </div>
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">包含完整波數 N</span>
+            <input id="wr-n" type="number" step="0.25" value="2.5" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">經歷時間 t（秒）</span>
+            <input id="wr-t" type="number" step="0.1" value="5" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">波峰到波谷垂直總高（2A）</span>
+            <input id="wr-h" type="number" step="0.5" value="12" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+        </div>
+      `;
+
+      const calc = () => {
+        const L = numVal('wr-len');
+        const unit = document.getElementById('wr-unit').value;
+        const N = numVal('wr-n');
+        const t = numVal('wr-t');
+        const H = numVal('wr-h');
+        const out = document.getElementById('solver-answer-body');
+        if (!Number.isFinite(L) || L <= 0 || !Number.isFinite(N) || N <= 0 || !Number.isFinite(t) || t <= 0 || !Number.isFinite(H) || H <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">所有數值皆須大於 0。</div>`;
+          return;
+        }
+        const lambda = L / N;
+        const amp = H / 2;
+        const T = t / N;
+        const f = N / t;
+        const v = f * lambda;
+        out.innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 tabular-nums">
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">波長 λ</div><div class="text-sm font-bold text-sky-500 dark:text-sky-400">${fmt(lambda)} ${unit}</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">振幅 A</div><div class="text-sm font-bold">${fmt(amp)} ${unit}</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">週期 T</div><div class="text-sm font-bold">${fmt(T, 3)} s</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">頻率 f</div><div class="text-sm font-bold">${fmt(f, 3)} Hz</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">波速 v</div><div class="text-sm font-bold text-emerald-500 dark:text-emerald-400">${fmt(v)} ${unit}/s</div></div>
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>波長：<code>λ = 總長 ÷ 波數 = ${fmt(L)} ÷ ${fmt(N)} = ${fmt(lambda)} ${unit}</code></li>
+            <li>振幅：波峰到波谷是 2 倍振幅，所以 <code>A = ${fmt(H)} ÷ 2 = ${fmt(amp)} ${unit}</code></li>
+            <li>週期與頻率：<code>T = ${fmt(t)} ÷ ${fmt(N)} = ${fmt(T, 3)} 秒</code>；<code>f = 1 ÷ T = ${fmt(f, 3)} Hz</code></li>
+            <li>波速：<code>v = f × λ = ${fmt(f, 3)} × ${fmt(lambda)} = ${fmt(v)} ${unit}/s</code></li>
+          </ol>
+          <div class="text-xs text-zinc-500 dark:text-zinc-400 pt-1">
+            快速對照：<strong>橫波（高低波）</strong>振動 ⊥ 前進（繩波、光波）；<strong>縱波（疏密波）</strong>振動 // 前進（聲波）。
+          </div>
+        `;
+      };
+
+      c.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calc));
+      document.getElementById('ex-wr-1').addEventListener('click', () => {
+        document.getElementById('wr-len').value = 50;
+        document.getElementById('wr-unit').value = 'cm';
+        document.getElementById('wr-n').value = 2.5;
+        document.getElementById('wr-t').value = 5;
+        document.getElementById('wr-h').value = 12;
+        calc();
+      });
+      document.getElementById('ex-wr-2').addEventListener('click', () => {
+        document.getElementById('wr-len').value = 1.2;
+        document.getElementById('wr-unit').value = 'm';
+        document.getElementById('wr-n').value = 3;
+        document.getElementById('wr-t').value = 0.6;
+        document.getElementById('wr-h').value = 0.4;
+        calc();
+      });
+      calc();
+    }
+
+    // ==================== 3. V = F * LAMBDA SOLVER ====================
+    function buildWaveVflSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">選擇要求解的未知數</span>
+            <select id="vfl-target" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="v">求波速 v（已知 f 與 λ）</option>
+              <option value="lambda">求波長 λ（已知 v 與 f）</option>
+              <option value="f">求頻率 f 與週期 T（已知 v 與 λ）</option>
+            </select>
+          </label>
+          <label id="vfl-wrap-a" class="space-y-1 block"></label>
+          <label id="vfl-wrap-b" class="space-y-1 block"></label>
+        </div>
+      `;
+
+      const renderFields = () => {
+        const target = document.getElementById('vfl-target').value;
+        const wa = document.getElementById('vfl-wrap-a');
+        const wb = document.getElementById('vfl-wrap-b');
+        if (target === 'v') {
+          wa.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">頻率 f（Hz）</span><input id="vfl-a" type="number" step="0.1" value="5" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />`;
+          wb.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">波長 λ（cm）</span><input id="vfl-b" type="number" step="0.1" value="20" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />`;
+        } else if (target === 'lambda') {
+          wa.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">波速 v（m/s）</span><input id="vfl-a" type="number" step="1" value="340" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />`;
+          wb.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">頻率 f（Hz）</span><input id="vfl-b" type="number" step="1" value="680" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />`;
+        } else {
+          wa.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">波速 v（m/s）</span><input id="vfl-a" type="number" step="1" value="340" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />`;
+          wb.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">波長 λ（m）</span><input id="vfl-b" type="number" step="0.1" value="0.5" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />`;
+        }
+        document.getElementById('vfl-a').addEventListener('input', calc);
+        document.getElementById('vfl-b').addEventListener('input', calc);
+        calc();
+      };
+
+      const calc = () => {
+        const target = document.getElementById('vfl-target').value;
+        const a = numVal('vfl-a');
+        const b = numVal('vfl-b');
+        const out = document.getElementById('solver-answer-body');
+        if (!Number.isFinite(a) || a <= 0 || !Number.isFinite(b) || b <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的數值。</div>`;
+          return;
+        }
+        if (target === 'v') {
+          const vCm = a * b;
+          const vM = vCm / 100;
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+              波速 v ＝ ${fmt(vCm)} cm/s（＝ ${fmt(vM, 3)} m/s），週期 T ＝ ${fmt(1 / a, 3)} s
+            </div>
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+              <li>使用公式：<code>v = f × λ</code></li>
+              <li>代入數值：<code>v = ${fmt(a)} × ${fmt(b)} = ${fmt(vCm)} cm/s</code>（除以 100 得 <code>${fmt(vM, 3)} m/s</code>）</li>
+              <li>補充週期：<code>T = 1 ÷ f = 1 ÷ ${fmt(a)} = ${fmt(1 / a, 3)} 秒</code></li>
+            </ol>
+          `;
+        } else if (target === 'lambda') {
+          const lam = a / b;
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+              波長 λ ＝ ${fmt(lam, 3)} m（＝ ${fmt(lam * 100, 1)} cm），週期 T ＝ ${fmt(1 / b, 4)} s
+            </div>
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+              <li>使用公式：<code>λ = v ÷ f</code></li>
+              <li>代入數值：<code>λ = ${fmt(a)} ÷ ${fmt(b)} = ${fmt(lam, 3)} m</code>（乘以 100 得 <code>${fmt(lam * 100, 1)} cm</code>）</li>
+            </ol>
+          `;
+        } else {
+          const f = a / b;
+          const T = 1 / f;
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+              頻率 f ＝ ${fmt(f, 2)} Hz ｜ 週期 T ＝ ${fmt(T, 4)} s
+            </div>
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+              <li>使用公式：<code>f = v ÷ λ</code></li>
+              <li>代入數值：<code>f = ${fmt(a)} ÷ ${fmt(b)} = ${fmt(f, 2)} Hz</code></li>
+              <li>倒數求週期：<code>T = 1 ÷ ${fmt(f, 2)} = ${fmt(T, 4)} 秒</code></li>
+            </ol>
+          `;
+        }
+      };
+
+      document.getElementById('vfl-target').addEventListener('change', renderFields);
+      renderFields();
+    }
+
+    // ==================== 4. SOUND 3 PROPERTIES & INSTRUMENTS ====================
+    function buildSoundPropsSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">想查哪個聲音特徵？</span>
+            <select id="sp-mode" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="loudness">響度（大聲／小聲）</option>
+              <option value="pitch">音調（高音／低音）</option>
+              <option value="timbre">音色（辨認不同人或樂器）</option>
+              <option value="string">弦樂器調音判別（吉他／提琴）</option>
+              <option value="bottle">水瓶吹氣 vs. 敲擊音調判別</option>
+            </select>
+          </label>
+          <div id="sp-sub-wrap" class="space-y-1"></div>
+        </div>
+      `;
+
+      const renderSub = () => {
+        const mode = document.getElementById('sp-mode').value;
+        const wrap = document.getElementById('sp-sub-wrap');
+        if (mode === 'bottle') {
+          wrap.innerHTML = `
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">操作方式與水位</span>
+            <select id="sp-bottle-act" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="blow-high">用嘴吹瓶口 ＋ 水裝很多（空氣柱短）</option>
+              <option value="blow-low">用嘴吹瓶口 ＋ 水裝很少（空氣柱長）</option>
+              <option value="hit-high">用筷子敲瓶身 ＋ 水裝很多</option>
+              <option value="hit-low">用筷子敲瓶身 ＋ 水裝很少</option>
+            </select>
+          `;
+          document.getElementById('sp-bottle-act').addEventListener('change', calc);
+        } else if (mode === 'string') {
+          wrap.innerHTML = `
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">琴弦調整方式</span>
+            <select id="sp-str-act" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="short">手指按住琴弦（有效弦長變短）</option>
+              <option value="tight">轉緊弦鈕（弦變緊）</option>
+              <option value="thick">換成比較粗的弦</option>
+              <option value="hard">更用力撥弦</option>
+            </select>
+          `;
+          document.getElementById('sp-str-act').addEventListener('change', calc);
+        } else {
+          wrap.innerHTML = `<span class="text-xs text-zinc-500 dark:text-zinc-400">快速對照</span><div class="text-xs py-2 text-zinc-500">下方直接列出定義、決定因素與單位</div>`;
+        }
+        calc();
+      };
+
+      const calc = () => {
+        const mode = document.getElementById('sp-mode').value;
+        const out = document.getElementById('solver-answer-body');
+        if (mode === 'loudness') {
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400">響度（音量）← 由「振幅」決定，單位：分貝（dB）</div>
+            <ul class="text-xs sm:text-sm space-y-1 text-zinc-700 dark:text-zinc-300 list-disc pl-4">
+              <li>用力敲鼓、大聲喊叫 → <strong>振幅變大</strong> → 響度變大，傳得比較遠。</li>
+              <li>注意：響度變大<strong>不會</strong>讓聲速變快，也<strong>不會</strong>讓音調變高。</li>
+            </ul>
+          `;
+        } else if (mode === 'pitch') {
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400">音調（高低）← 由「頻率」決定，單位：赫茲（Hz）</div>
+            <ul class="text-xs sm:text-sm space-y-1 text-zinc-700 dark:text-zinc-300 list-disc pl-4">
+              <li>每秒振動次數越多（頻率高）→ 聲音越尖細（高音）；頻率低 → 聲音越低沉。</li>
+              <li>人耳聽覺範圍約 <strong>20 Hz ～ 20,000 Hz</strong>；高於 20,000 Hz 稱為「超音波」（蝙蝠、聲納）。</li>
+            </ul>
+          `;
+        } else if (mode === 'timbre') {
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400">音色（音品）← 由「波形」決定</div>
+            <ul class="text-xs sm:text-sm space-y-1 text-zinc-700 dark:text-zinc-300 list-disc pl-4">
+              <li>即使鋼琴和小提琴彈出相同音調（同頻率）與相同響度（同振幅），因為發聲體材質與構造不同，產生不同的<strong>波形</strong>，所以聽得出來不同。</li>
+            </ul>
+          `;
+        } else if (mode === 'string') {
+          const act = document.getElementById('sp-str-act')?.value || 'short';
+          const map = {
+            short: ['音調變高（頻率↑）', '有效振動弦長變短，振動變快，所以音調變高。'],
+            tight: ['音調變高（頻率↑）', '弦拉得越緊，回復力越大、振動越快，音調變高。'],
+            thick: ['音調變低（頻率↓）', '粗弦質量較大、振動較慢，所以音調較低。'],
+            hard:  ['響度變大（振幅↑），音調不變！', '用力撥弦只會增加振幅（變大聲），不會改變弦的振動頻率。']
+          };
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400">${map[act][0]}</div>
+            <p class="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">${map[act][1]}</p>
+          `;
+        } else {
+          const act = document.getElementById('sp-bottle-act')?.value || 'blow-high';
+          const map = {
+            'blow-high': ['音調較高（空氣柱短）', '用嘴吹氣時，振動的是瓶內上方的「空氣柱」。水裝越多 → 空氣柱越短 → 振動越快 → 音調越高！'],
+            'blow-low':  ['音調較低（空氣柱長）', '用嘴吹氣時，水越少 → 空氣柱越長 → 振動越慢 → 音調越低！'],
+            'hit-high':  ['音調較低（瓶＋水較重）', '用筷子敲瓶身時，振動的是「瓶子與水」。水裝越多 → 越重越難振動 → 頻率低 → 音調越低！'],
+            'hit-low':   ['音調較高（瓶＋水較輕）', '用筷子敲瓶身時，水越少 → 越輕越好振動 → 頻率高 → 音調越高！']
+          };
+          out.innerHTML = `
+            <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400">${map[act][0]}</div>
+            <p class="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">${map[act][1]}</p>
+          `;
+        }
+      };
+
+      document.getElementById('sp-mode').addEventListener('change', renderSub);
+      renderSub();
+    }
+
+    // ==================== 5. LENS SOLVER ====================
+    function buildLensSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="text-zinc-500 dark:text-zinc-400">快速測試經典位置（f = 10 cm）：</span>
+          <button data-lp="30" class="lp-ex px-2.5 py-1 rounded-md panel-subtle hover:border-violet-500/40">p = 30 (p&gt;2f)</button>
+          <button data-lp="20" class="lp-ex px-2.5 py-1 rounded-md panel-subtle hover:border-violet-500/40">p = 20 (p=2f)</button>
+          <button data-lp="15" class="lp-ex px-2.5 py-1 rounded-md panel-subtle hover:border-violet-500/40">p = 15 (f&lt;p&lt;2f)</button>
+          <button data-lp="10" class="lp-ex px-2.5 py-1 rounded-md panel-subtle hover:border-violet-500/40">p = 10 (p=f)</button>
+          <button data-lp="6"  class="lp-ex px-2.5 py-1 rounded-md panel-subtle hover:border-violet-500/40">p = 6 (p&lt;f)</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">透鏡種類</span>
+            <select id="ls-type" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="convex">凸透鏡（會聚透鏡）</option>
+              <option value="concave">凹透鏡（發散透鏡）</option>
+            </select>
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">焦距大小 f（cm，輸入正數）</span>
+            <input id="ls-f" type="number" step="1" value="10" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">物距 p（cm）</span>
+            <input id="ls-p" type="number" step="1" value="15" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+        </div>
+      `;
+
+      const calc = () => {
+        const type = document.getElementById('ls-type').value;
+        const fAbs = numVal('ls-f');
+        const p = numVal('ls-p');
+        const out = document.getElementById('solver-answer-body');
+        if (!Number.isFinite(fAbs) || fAbs <= 0 || !Number.isFinite(p) || p <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的焦距與物距。</div>`;
+          return;
+        }
+        if (type === 'concave') {
+          const f = -fAbs;
+          const q = 1 / (1 / f - 1 / p); // negative => virtual, same side
+          const m = Math.abs(q / p);
+          out.innerHTML = `
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-violet-500/15 text-violet-500 dark:text-violet-300 border border-violet-500/30">正立・縮小・虛像</span>
+              <span class="px-2.5 py-1 rounded-lg text-xs font-medium panel">同側（物像同側，位於焦點內）</span>
+              <span class="px-2.5 py-1 rounded-lg text-xs font-medium panel tabular-nums">像距 |q| = ${fmt(Math.abs(q))} cm（放大率 ${fmt(m)}×）</span>
+            </div>
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+              <li>凹透鏡焦距取負值（<code>f = -${fmt(fAbs)} cm</code>），無論物體放哪裡，永遠在同側焦點內成「正立縮小虛像」。</li>
+              <li>薄透鏡公式輔助驗證：<code>1/${fmt(p)} + 1/q = 1/(-${fmt(fAbs)})</code> ⇒ <code>q = ${fmt(q)} cm</code>（負號代表同側虛像）。</li>
+              <li>常見應用：近視眼鏡、貓眼門鏡。物體越靠近凹透鏡，虛像越靠近鏡面且稍微變大（但仍小於原物）。</li>
+            </ol>
+          `;
+          return;
+        }
+
+        // Convex lens
+        const eps = 1e-6;
+        if (Math.abs(p - fAbs) < eps) {
+          out.innerHTML = `
+            <div class="text-base font-semibold text-amber-500 dark:text-amber-400">物體剛好在焦點上（p = f）：折射光互相平行，不成像！</div>
+            <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4">
+              <li>因為 <code>1/q = 1/f − 1/p = 0</code>，光線經凸透鏡折射後變成平行光，不會交會也不會發散成虛像。</li>
+              <li>常見應用：探照燈、手電筒（將燈泡放在焦點處以射出平行光束）。</li>
+            </ol>
+          `;
+          return;
+        }
+
+        const q = 1 / (1 / fAbs - 1 / p);
+        const m = Math.abs(q / p);
+        let zone, props, app, moveTip;
+        if (p > 2 * fAbs + eps) {
+          zone = `p > 2f（${fmt(p)} > ${fmt(2 * fAbs)}）`;
+          props = '倒立・縮小・實像（異側，f < q < 2f）';
+          app = '照相機、眼睛視網膜成像';
+          moveTip = '物體靠近鏡面時，實像會「往遠離鏡面方向移動」且「越來越大」。';
+        } else if (Math.abs(p - 2 * fAbs) <= eps) {
+          zone = `p = 2f（兩倍焦距處）`;
+          props = '倒立・等大・實像（異側，q = 2f）';
+          app = '等比例影印機、測凸透鏡焦距實驗';
+          moveTip = '這是「放大／縮小」的分界點！再往前移一點就會變成放大倒立實像。';
+        } else if (p > fAbs + eps) {
+          zone = `f < p < 2f（${fmt(fAbs)} < ${fmt(p)} < ${fmt(2 * fAbs)}）`;
+          props = '倒立・放大・實像（異側，q > 2f）';
+          app = '投影機、電影放映機、顯微鏡物鏡';
+          moveTip = '物體越靠近焦點 F，像跑得越遠、放得越大！';
+        } else {
+          zone = `p < f（焦點以內）`;
+          props = '正立・放大・虛像（同側，|q| > p）';
+          app = '放大鏡、老花／遠視眼鏡';
+          moveTip = '在焦點內時，物體越靠近鏡面，虛像反而越靠近鏡面且變小（但仍比原物大）。';
+        }
+
+        out.innerHTML = `
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">${props}</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs font-medium panel tabular-nums">區間：${zone}</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs font-medium panel tabular-nums">像距 |q| = ${fmt(Math.abs(q))} cm（放大率 ${fmt(m)}×）</span>
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>區間判斷：焦距 <code>f = ${fmt(fAbs)} cm</code>、兩倍焦距 <code>2f = ${fmt(2 * fAbs)} cm</code>，目前 <code>p = ${fmt(p)} cm</code> 落在 <strong>${zone}</strong>。</li>
+            <li>薄透鏡公式驗證：<code>1/${fmt(p)} + 1/q = 1/${fmt(fAbs)}</code> ⇒ <code>q = ${fmt(q)} cm</code>（${q > 0 ? '正值＝異側實像' : '負值＝同側虛像'}）。</li>
+            <li>常見應用：${app}。</li>
+            <li>移動規律：${moveTip}</li>
+          </ol>
+        `;
+      };
+
+      c.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calc));
+      c.querySelectorAll('.lp-ex').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('ls-type').value = 'convex';
+          document.getElementById('ls-f').value = 10;
+          document.getElementById('ls-p').value = btn.dataset.lp;
+          calc();
+        });
+      });
+      calc();
+    }
+
+    // ==================== 6. PLANE MIRROR SOLVER ====================
+    function buildPlaneMirrorSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">給定的角度種類</span>
+            <select id="pm-ang-type" class="input-field w-full px-3 py-2 rounded-lg text-xs sm:text-sm">
+              <option value="mirror">光線與「鏡面」夾角</option>
+              <option value="normal">入射角（與法線夾角）</option>
+            </select>
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">角度值（度，0~90）</span>
+            <input id="pm-ang" type="number" step="1" value="30" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">人距鏡子 d（m）／走近速度 v</span>
+            <div class="flex gap-1.5">
+              <input id="pm-d" type="number" step="0.5" value="2" class="input-field w-full px-2.5 py-2 rounded-lg text-sm tabular-nums" title="距離(m)" />
+              <input id="pm-v" type="number" step="0.5" value="1.5" class="input-field w-full px-2.5 py-2 rounded-lg text-sm tabular-nums" title="速度(m/s)" />
+            </div>
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">身高 H（cm）／雙鏡夾角 θ（°）</span>
+            <div class="flex gap-1.5">
+              <input id="pm-h" type="number" step="1" value="170" class="input-field w-full px-2.5 py-2 rounded-lg text-sm tabular-nums" title="身高(cm)" />
+              <input id="pm-theta" type="number" step="5" value="90" class="input-field w-full px-2.5 py-2 rounded-lg text-sm tabular-nums" title="雙鏡夾角(度)" />
+            </div>
+          </label>
+        </div>
+      `;
+
+      const calc = () => {
+        const angType = document.getElementById('pm-ang-type').value;
+        const ang = numVal('pm-ang');
+        const d = numVal('pm-d');
+        const v = numVal('pm-v');
+        const h = numVal('pm-h');
+        const theta = numVal('pm-theta');
+        const out = document.getElementById('solver-answer-body');
+
+        if (!Number.isFinite(ang) || ang < 0 || ang >= 90 || !Number.isFinite(d) || d <= 0 || !Number.isFinite(h) || h <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入有效角度（0°～89°）與大於 0 的距離、身高。</div>`;
+          return;
+        }
+        const inc = angType === 'mirror' ? 90 - ang : ang;
+        const dualN = (Number.isFinite(theta) && theta > 0 && theta <= 180)
+          ? (360 % theta === 0 ? `${360 / theta - 1} 個像` : `約 ${Math.floor(360 / theta)} 個像（非整除）`)
+          : '—';
+
+        out.innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 tabular-nums">
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">入射角 ＝ 反射角</div><div class="text-sm font-bold text-sky-500 dark:text-sky-400">${fmt(inc)}°</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">入射與反射光夾角</div><div class="text-sm font-bold">${fmt(inc * 2)}°</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">人與像距離 / 相對速度</div><div class="text-sm font-bold text-emerald-500 dark:text-emerald-400">${fmt(d * 2)} m / ${fmt(v * 2)} m/s</div></div>
+            <div class="panel rounded-lg p-2.5"><div class="text-[10px] text-zinc-500">最小全身鏡長 / 雙鏡像數</div><div class="text-sm font-bold">${fmt(h / 2)} cm / ${dualN}</div></div>
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>角度換算：${angType === 'mirror' ? `與鏡面夾 ${fmt(ang)}°，所以入射角 = <code>90° − ${fmt(ang)}° = ${fmt(inc)}°</code>` : `入射角為 <code>${fmt(inc)}°</code>`}，由反射定律知反射角也是 <code>${fmt(inc)}°</code>，兩光線夾角 <code>2 × ${fmt(inc)}° = ${fmt(inc * 2)}°</code>。</li>
+            <li>平面鏡成像永遠是「正立、等大、左右相反、虛像」，且物距 ＝ 像距 ＝ <code>${fmt(d)} m</code>，人與像相距 <code>${fmt(d * 2)} m</code>。</li>
+            <li>看清全身最小鏡長 ＝ <code>身高 ÷ 2 = ${fmt(h)} ÷ 2 = ${fmt(h / 2)} cm</code>（與站多遠無關）。</li>
+            <li>雙平面鏡夾角 <code>${fmt(theta)}°</code>：公式 <code>n = (360° ÷ θ) − 1</code> → <strong>${dualN}</strong>。</li>
+          </ol>
+        `;
+      };
+
+      c.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calc));
+      calc();
+    }
+
+    // ==================== 7. PINHOLE SOLVER ====================
+    function buildPinholeSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">物體高度 h<sub>物</sub>（cm）</span>
+            <input id="ph-ho" type="number" step="0.5" value="12" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">物體到針孔距離 p（cm）</span>
+            <input id="ph-p" type="number" step="1" value="20" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">針孔到紙屏距離 q（cm）</span>
+            <input id="ph-q" type="number" step="1" value="30" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+        </div>
+      `;
+
+      const calc = () => {
+        const ho = numVal('ph-ho');
+        const p = numVal('ph-p');
+        const q = numVal('ph-q');
+        const out = document.getElementById('solver-answer-body');
+        if (!Number.isFinite(ho) || ho <= 0 || !Number.isFinite(p) || p <= 0 || !Number.isFinite(q) || q <= 0) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入大於 0 的高度與距離。</div>`;
+          return;
+        }
+        const hi = ho * (q / p);
+        const m = q / p;
+        const sizeLabel = m > 1 ? '放大' : (m < 1 ? '縮小' : '等大');
+        out.innerHTML = `
+          <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            像高 h<sub>像</sub> ＝ ${fmt(hi)} cm（${sizeLabel} ${fmt(m)} 倍・上下顛倒、左右相反・實像）
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4 tabular-nums">
+            <li>相似三角形比例：<code>h<sub>像</sub> / h<sub>物</sub> = q / p</code></li>
+            <li>代入數值：<code>h<sub>像</sub> = ${fmt(ho)} × (${fmt(q)} ÷ ${fmt(p)}) = ${fmt(hi)} cm</code></li>
+            <li>變化規律：紙屏往後拉（q 變大）→ 像變大、變暗；蠟燭靠近針孔（p 變小）→ 像變大、變亮。</li>
+          </ol>
+        `;
+      };
+
+      c.querySelectorAll('input').forEach(el => el.addEventListener('input', calc));
+      calc();
+    }
+
+    // ==================== 8. REFRACTION SOLVER ====================
+    function buildRefractionSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">出發介質（入射端）</span>
+            <select id="rf-m1" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="air" selected>空氣（光速最快，n ≈ 1.00）</option>
+              <option value="water">水（光速中等，n ≈ 1.33）</option>
+              <option value="glass">玻璃（光速最慢，n ≈ 1.50）</option>
+            </select>
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">進入介質（折射端）</span>
+            <select id="rf-m2" class="input-field w-full px-3 py-2 rounded-lg text-sm">
+              <option value="air">空氣（光速最快，n ≈ 1.00）</option>
+              <option value="water" selected>水（光速中等，n ≈ 1.33）</option>
+              <option value="glass">玻璃（光速最慢，n ≈ 1.50）</option>
+            </select>
+          </label>
+          <label class="space-y-1 block">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">入射角 θ₁（度，0~89）</span>
+            <input id="rf-ang" type="number" step="1" value="40" class="input-field w-full px-3 py-2 rounded-lg text-sm tabular-nums" />
+          </label>
+        </div>
+      `;
+
+      const N = { air: 1.00, water: 1.33, glass: 1.50 };
+      const NAME = { air: '空氣', water: '水', glass: '玻璃' };
+
+      const calc = () => {
+        const m1 = document.getElementById('rf-m1').value;
+        const m2 = document.getElementById('rf-m2').value;
+        const ang = numVal('rf-ang');
+        const out = document.getElementById('solver-answer-body');
+        if (!Number.isFinite(ang) || ang < 0 || ang >= 90) {
+          out.innerHTML = `<div class="text-xs text-rose-400">請輸入 0° 到 89° 之間的入射角。</div>`;
+          return;
+        }
+        if (m1 === m2) {
+          out.innerHTML = `<div class="text-sm font-semibold text-sky-500">相同介質（${NAME[m1]} → ${NAME[m2]}）：光速不變，光線直線前進不偏折（折射角 = ${fmt(ang)}°）。</div>`;
+          return;
+        }
+        if (ang === 0) {
+          out.innerHTML = `<div class="text-sm font-semibold text-sky-500">垂直入射（入射角 = 0°）：光速會改變，但前進方向不偏折（折射角 = 0°）！</div>`;
+          return;
+        }
+        const sin2 = (N[m1] * Math.sin(ang * Math.PI / 180)) / N[m2];
+        const slower = N[m2] > N[m1];
+        if (sin2 > 1) {
+          out.innerHTML = `
+            <div class="text-base font-semibold text-amber-500">發生全反射！（入射角大於臨界角，光線無法折射出介面，全部反射回${NAME[m1]}中）</div>
+            <p class="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">由光速較慢介質射向較快介質且角度過大時會發生全反射（光纖通訊原理）。</p>
+          `;
+          return;
+        }
+        const ang2 = Math.asin(sin2) * 180 / Math.PI;
+        out.innerHTML = `
+          <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            光線「${slower ? '偏向法線' : '偏離法線'}」（折射角 ≈ ${fmt(ang2, 1)}° ${slower ? '<' : '>'} 入射角 ${fmt(ang)}°）
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4">
+            <li>速度判斷：從<strong>${NAME[m1]}</strong>進入<strong>${NAME[m2]}</strong>，光速${slower ? '變慢' : '變快'}。</li>
+            <li>口訣「快大慢小」：進入光速較${slower ? '慢' : '快'}的介質，與法線夾角變${slower ? '小（偏向法線）' : '大（偏離法線）'}。</li>
+            <li>視深生活對照：岸上看水底的魚（光由水→空氣偏離法線）會覺得魚<strong>變淺、變高</strong>；水中看岸上的樹則會覺得<strong>變高、變遠</strong>。</li>
+          </ol>
+        `;
+      };
+
+      c.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calc));
+      calc();
+    }
+
+    // ==================== 9. VISION & COLOR SOLVER ====================
+    function buildVisionColorSolver() {
+      const c = document.getElementById('solver-controls');
+      c.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Vision Card -->
+          <div class="p-3.5 rounded-xl panel-subtle space-y-2.5">
+            <div class="text-xs font-semibold">1. 視力矯正判別</div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-vis="myopia" class="vis-btn px-3 py-2 rounded-lg text-xs font-medium bg-violet-500/20 text-violet-500 dark:text-violet-300 border border-violet-500/30">近視眼</button>
+              <button type="button" data-vis="hyperopia" class="vis-btn px-3 py-2 rounded-lg text-xs font-medium panel text-zinc-500">遠視／老花眼</button>
+            </div>
+            <div id="vis-desc" class="text-xs leading-relaxed text-zinc-600 dark:text-zinc-300"></div>
+          </div>
+
+          <!-- RGB & Object Color Card -->
+          <div class="p-3.5 rounded-xl panel-subtle space-y-2.5">
+            <div class="text-xs font-semibold">2. 色光照射物體顏色模擬</div>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="space-y-1 block">
+                <span class="text-[11px] text-zinc-500">入射色光</span>
+                <select id="col-light" class="input-field w-full px-2.5 py-1.5 rounded-lg text-xs">
+                  <option value="111">白光（紅+綠+藍）</option>
+                  <option value="100">純紅光（R）</option>
+                  <option value="010" selected>純綠光（G）</option>
+                  <option value="001">純藍光（B）</option>
+                  <option value="110">黃光（紅+綠）</option>
+                  <option value="011">青光（綠+藍）</option>
+                  <option value="101">洋紅光（紅+藍）</option>
+                </select>
+              </label>
+              <label class="space-y-1 block">
+                <span class="text-[11px] text-zinc-500">物體原本顏色（白光下）</span>
+                <select id="col-obj" class="input-field w-full px-2.5 py-1.5 rounded-lg text-xs">
+                  <option value="111">白色物體</option>
+                  <option value="100" selected>紅色物體（如紅蘋果）</option>
+                  <option value="010">綠色物體</option>
+                  <option value="001">藍色物體</option>
+                  <option value="110">黃色物體（反紅+綠）</option>
+                  <option value="011">青色物體（反綠+藍）</option>
+                  <option value="101">洋紅物體（反紅+藍）</option>
+                  <option value="000">黑色物體</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const COLOR_MAP = {
+        '000': { name: '黑色', hex: '#18181B', comp: '無任何色光反射' },
+        '100': { name: '紅色', hex: '#EF4444', comp: '紅光 (R)' },
+        '010': { name: '綠色', hex: '#22C55E', comp: '綠光 (G)' },
+        '001': { name: '藍色', hex: '#3B82F6', comp: '藍光 (B)' },
+        '110': { name: '黃色', hex: '#EAB308', comp: '紅光 + 綠光' },
+        '011': { name: '青色', hex: '#06B6D4', comp: '綠光 + 藍光' },
+        '101': { name: '洋紅色', hex: '#EC4899', comp: '紅光 + 藍光' },
+        '111': { name: '白色', hex: '#F4F4F5', comp: '紅 + 綠 + 藍光' },
+      };
+
+      let visMode = 'myopia';
+      const renderVis = () => {
+        const el = document.getElementById('vis-desc');
+        if (visMode === 'myopia') {
+          el.innerHTML = '<strong>成因：</strong>眼球過長或水晶體過厚，使遠處物體成像落在視網膜<strong>前方</strong>。<br><strong>矯正：</strong>配戴<strong>凹透鏡</strong>（先發散光線，把成像往後推回視網膜上）。';
+        } else {
+          el.innerHTML = '<strong>成因：</strong>眼球過短或水晶體調節不足，使近處物體成像落在視網膜<strong>後方</strong>。<br><strong>矯正：</strong>配戴<strong>凸透鏡</strong>（加強會聚，把成像往前拉回視網膜上）。';
+        }
+      };
+
+      const calc = () => {
+        const L = document.getElementById('col-light').value;
+        const O = document.getElementById('col-obj').value;
+        const resBits = [0, 1, 2].map(i => (L[i] === '1' && O[i] === '1') ? '1' : '0').join('');
+        const res = COLOR_MAP[resBits];
+        const lInfo = COLOR_MAP[L];
+        const oInfo = COLOR_MAP[O];
+        const out = document.getElementById('solver-answer-body');
+        out.innerHTML = `
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl border border-zinc-400/40 shrink-0 shadow-inner" style="background-color: ${res.hex};"></div>
+            <div>
+              <div class="text-base font-semibold text-emerald-600 dark:text-emerald-400">人眼看到的顏色：${res.name}</div>
+              <div class="text-xs text-zinc-500 dark:text-zinc-400">反射進眼睛的色光成分：${res.comp}</div>
+            </div>
+          </div>
+          <ol class="text-xs sm:text-sm space-y-1.5 text-zinc-700 dark:text-zinc-300 list-decimal pl-4">
+            <li>入射的「${lInfo.name}光」含有：<strong>${lInfo.comp}</strong>。</li>
+            <li>「${oInfo.name}物體」只願意反射：<strong>${oInfo.comp}</strong>，其餘色光全部吸收。</li>
+            <li>取兩者交集 → 最後反射到眼睛的只有「<strong>${res.comp}</strong>」，所以看起來是<strong>${res.name}</strong>！</li>
+          </ol>
+        `;
+      };
+
+      c.querySelectorAll('.vis-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          visMode = b.dataset.vis;
+          c.querySelectorAll('.vis-btn').forEach(x => {
+            const on = x.dataset.vis === visMode;
+            x.className = on
+              ? 'vis-btn px-3 py-2 rounded-lg text-xs font-medium bg-violet-500/20 text-violet-500 dark:text-violet-300 border border-violet-500/30'
+              : 'vis-btn px-3 py-2 rounded-lg text-xs font-medium panel text-zinc-500';
+          });
+          renderVis();
+        });
+      });
+
+      document.getElementById('col-light').addEventListener('change', calc);
+      document.getElementById('col-obj').addEventListener('change', calc);
+      renderVis();
+      calc();
+    }
+
+    // ==================== TAB 2: SIMULATORS ====================
+    let activeSim = 'wave';
+    document.querySelectorAll('.sim-sub-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeSim = btn.dataset.sim;
+        document.getElementById('sim-panel-wave').classList.toggle('hidden', activeSim !== 'wave');
+        document.getElementById('sim-panel-lens').classList.toggle('hidden', activeSim !== 'lens');
+        document.querySelectorAll('.sim-sub-btn').forEach(b => {
+          const on = b.dataset.sim === activeSim;
+          b.className = on
+            ? 'sim-sub-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-500/15 text-sky-500 dark:text-sky-300 border border-sky-500/30'
+            : 'sim-sub-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 border border-transparent';
+        });
+        requestAnimationFrame(() => {
+          resizeWaveCanvas();
+          resizeLensCanvas();
+          drawLensSim();
+        });
+      });
+    });
+
+    // --- Wave Canvas Simulator ---
+    const waveCanvas = document.getElementById('wave-canvas');
+    const waveCtx = waveCanvas.getContext('2d');
+    let wavePlaying = true;
+    let waveTime = 0;
+    let lastTs = 0;
+    let waveAmp = 1.5;
+    let waveFreq = 1.0;
+    let waveSpeed = 4.0;
+
+    function resizeWaveCanvas() {
+      const rect = waveCanvas.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      waveCanvas.width = Math.round(rect.width * dpr);
+      waveCanvas.height = Math.round(rect.height * dpr);
+      waveCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function updateWaveLabels() {
+      const lam = waveSpeed / waveFreq;
+      const T = 1 / waveFreq;
+      document.getElementById('val-wave-amp').textContent = `${fmt(waveAmp, 1)} m`;
+      document.getElementById('val-wave-freq').textContent = `${fmt(waveFreq, 1)} Hz`;
+      document.getElementById('val-wave-speed').textContent = `${fmt(waveSpeed, 1)} m/s`;
+      document.getElementById('sim-wave-lambda').textContent = `${fmt(lam, 2)} m`;
+      document.getElementById('sim-wave-period').textContent = `${fmt(T, 2)} s`;
+      document.getElementById('sim-wave-freq-out').textContent = `${fmt(waveFreq, 1)} Hz`;
+      document.getElementById('sim-wave-amp-out').textContent = `${fmt(waveAmp, 1)} m`;
+    }
+
+    function drawWaveFrame(ts) {
+      if (!lastTs) lastTs = ts;
+      const dt = Math.min((ts - lastTs) / 1000, 0.05);
+      lastTs = ts;
+      if (wavePlaying && activeMainTab === 'sims' && activeSim === 'wave') {
+        waveTime += dt;
+      }
+
+      const rect = waveCanvas.getBoundingClientRect();
+      if (rect.width > 0 && activeMainTab === 'sims' && activeSim === 'wave') {
+        const W = rect.width;
+        const H = rect.height;
+        const midY = H / 2;
+        const pxPerMeterX = W / 12; // 12 meters span
+        const pxPerMeterY = (H * 0.34) / 2.5;
+        const lam = waveSpeed / waveFreq;
+        const k = (2 * Math.PI) / lam;
+        const omega = 2 * Math.PI * waveFreq;
+
+        waveCtx.clearRect(0, 0, W, H);
+
+        // Grid
+        waveCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+        waveCtx.lineWidth = 1;
+        for (let m = 1; m < 12; m++) {
+          const gx = m * pxPerMeterX;
+          waveCtx.beginPath();
+          waveCtx.moveTo(gx, 0);
+          waveCtx.lineTo(gx, H);
+          waveCtx.stroke();
+        }
+        // Equilibrium axis
+        waveCtx.strokeStyle = 'rgba(255,255,255,0.22)';
+        waveCtx.setLineDash([5, 5]);
+        waveCtx.beginPath();
+        waveCtx.moveTo(0, midY);
+        waveCtx.lineTo(W, midY);
+        waveCtx.stroke();
+        waveCtx.setLineDash([]);
+
+        // Wave curve
+        waveCtx.strokeStyle = '#38BDF8';
+        waveCtx.lineWidth = 2.5;
+        waveCtx.beginPath();
+        for (let x = 0; x <= W; x += 2) {
+          const xm = x / pxPerMeterX;
+          const y = midY - Math.sin(k * xm - omega * waveTime) * waveAmp * pxPerMeterY;
+          if (x === 0) waveCtx.moveTo(x, y);
+          else waveCtx.lineTo(x, y);
+        }
+        waveCtx.stroke();
+
+        // Highlight 1 wavelength bracket between two consecutive crests
+        const phaseOffset = (omega * waveTime) % (2 * Math.PI);
+        let crest1m = (Math.PI / 2 + phaseOffset) / k;
+        while (crest1m > lam) crest1m -= lam;
+        if (crest1m < 0.6) crest1m += lam;
+        const crest2m = crest1m + lam;
+        if (crest2m * pxPerMeterX < W - 12) {
+          const c1x = crest1m * pxPerMeterX;
+          const c2x = crest2m * pxPerMeterX;
+          const cy = midY - waveAmp * pxPerMeterY - 14;
+          waveCtx.strokeStyle = '#34D399';
+          waveCtx.lineWidth = 1.5;
+          waveCtx.beginPath();
+          waveCtx.moveTo(c1x, cy + 5);
+          waveCtx.lineTo(c1x, cy);
+          waveCtx.lineTo(c2x, cy);
+          waveCtx.lineTo(c2x, cy + 5);
+          waveCtx.stroke();
+          waveCtx.fillStyle = '#34D399';
+          waveCtx.font = '600 11px Inter, Noto Sans TC, sans-serif';
+          waveCtx.textAlign = 'center';
+          waveCtx.fillText(`一個波長 λ = ${fmt(lam, 2)} m`, (c1x + c2x) / 2, cy - 6);
+        }
+
+        // Tracked particle at x = 4m (vibrates strictly vertically)
+        const pxM = 4.0;
+        const pxX = pxM * pxPerMeterX;
+        const pyVal = Math.sin(k * pxM - omega * waveTime);
+        const pvVal = -omega * Math.cos(k * pxM - omega * waveTime); // dy/dt in physics coords
+        const pxY = midY - pyVal * waveAmp * pxPerMeterY;
+
+        // Vertical guide line for particle
+        waveCtx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+        waveCtx.setLineDash([3, 3]);
+        waveCtx.beginPath();
+        waveCtx.moveTo(pxX, midY - waveAmp * pxPerMeterY);
+        waveCtx.lineTo(pxX, midY + waveAmp * pxPerMeterY);
+        waveCtx.stroke();
+        waveCtx.setLineDash([]);
+
+        // Velocity arrow
+        const arrowLen = Math.max(-28, Math.min(28, -pvVal * 4.5));
+        if (Math.abs(arrowLen) > 4) {
+          waveCtx.strokeStyle = '#F59E0B';
+          waveCtx.lineWidth = 2;
+          waveCtx.beginPath();
+          waveCtx.moveTo(pxX, pxY);
+          waveCtx.lineTo(pxX, pxY + arrowLen);
+          waveCtx.stroke();
+        }
+
+        // Particle dot
+        waveCtx.fillStyle = '#F59E0B';
+        waveCtx.beginPath();
+        waveCtx.arc(pxX, pxY, 6, 0, Math.PI * 2);
+        waveCtx.fill();
+        waveCtx.fillStyle = '#FDE68A';
+        waveCtx.font = '500 11px Inter, Noto Sans TC, sans-serif';
+        waveCtx.textAlign = 'left';
+        waveCtx.fillText('介質質點（只上下振動）', pxX + 10, pxY + 4);
+      }
+
+      requestAnimationFrame(drawWaveFrame);
+    }
+
+    document.getElementById('slider-wave-amp').addEventListener('input', e => { waveAmp = parseFloat(e.target.value); updateWaveLabels(); });
+    document.getElementById('slider-wave-freq').addEventListener('input', e => { waveFreq = parseFloat(e.target.value); updateWaveLabels(); });
+    document.getElementById('slider-wave-speed').addEventListener('input', e => { waveSpeed = parseFloat(e.target.value); updateWaveLabels(); });
+    document.getElementById('wave-play-btn').addEventListener('click', e => {
+      wavePlaying = !wavePlaying;
+      e.target.textContent = wavePlaying ? '暫停動畫' : '繼續播放';
+    });
+    document.getElementById('wave-reset-btn').addEventListener('click', () => {
+      waveAmp = 1.5; waveFreq = 1.0; waveSpeed = 4.0;
+      document.getElementById('slider-wave-amp').value = 1.5;
+      document.getElementById('slider-wave-freq').value = 1.0;
+      document.getElementById('slider-wave-speed').value = 4.0;
+      updateWaveLabels();
+    });
+    updateWaveLabels();
+    requestAnimationFrame(drawWaveFrame);
+
+    // --- Lens Ray-Tracing Canvas Simulator ---
+    const lensCanvas = document.getElementById('lens-canvas');
+    const lensCtx = lensCanvas.getContext('2d');
+    let simLensType = 'convex';
+    let simLensF = 12;
+    let simLensP = 30;
+    let isDraggingObj = false;
+
+    function resizeLensCanvas() {
+      const rect = lensCanvas.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      lensCanvas.width = Math.round(rect.width * dpr);
+      lensCanvas.height = Math.round(rect.height * dpr);
+      lensCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawArrow(ctx, x, y0, y1, color, dashed = false) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 3;
+      if (dashed) ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, y0);
+      ctx.lineTo(x, y1);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const dir = y1 < y0 ? -1 : 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y1);
+      ctx.lineTo(x - 6, y1 - dir * 10);
+      ctx.lineTo(x + 6, y1 - dir * 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawLensSim() {
+      const rect = lensCanvas.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const W = rect.width;
+      const H = rect.height;
+      const cx = W / 2;
+      const cy = H / 2;
+      const scale = W / 110; // ±55 cm visible
+      const objH = 44;
+
+      lensCtx.clearRect(0, 0, W, H);
+
+      // Principal Axis
+      lensCtx.strokeStyle = 'rgba(255,255,255,0.22)';
+      lensCtx.lineWidth = 1.2;
+      lensCtx.beginPath();
+      lensCtx.moveTo(0, cy);
+      lensCtx.lineTo(W, cy);
+      lensCtx.stroke();
+
+      // Lens drawing
+      lensCtx.save();
+      lensCtx.strokeStyle = '#38BDF8';
+      lensCtx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+      lensCtx.lineWidth = 2;
+      const lh = H * 0.42;
+      lensCtx.beginPath();
+      if (simLensType === 'convex') {
+        lensCtx.moveTo(cx, cy - lh);
+        lensCtx.quadraticCurveTo(cx + 16, cy, cx, cy + lh);
+        lensCtx.quadraticCurveTo(cx - 16, cy, cx, cy - lh);
+      } else {
+        lensCtx.moveTo(cx - 12, cy - lh);
+        lensCtx.lineTo(cx + 12, cy - lh);
+        lensCtx.quadraticCurveTo(cx + 3, cy, cx + 12, cy + lh);
+        lensCtx.lineTo(cx - 12, cy + lh);
+        lensCtx.quadraticCurveTo(cx - 3, cy, cx - 12, cy - lh);
+      }
+      lensCtx.fill();
+      lensCtx.stroke();
+      lensCtx.restore();
+
+      // F and 2F markers
+      const marks = [
+        { cm: -2 * simLensF, label: '2F' },
+        { cm: -simLensF, label: 'F' },
+        { cm: simLensF, label: "F'" },
+        { cm: 2 * simLensF, label: "2F'" },
+      ];
+      marks.forEach(m => {
+        const mx = cx + m.cm * scale;
+        lensCtx.fillStyle = '#A1A1AA';
+        lensCtx.beginPath();
+        lensCtx.arc(mx, cy, 3.5, 0, Math.PI * 2);
+        lensCtx.fill();
+        lensCtx.font = '600 11px Inter, sans-serif';
+        lensCtx.textAlign = 'center';
+        lensCtx.fillText(m.label, mx, cy + 18);
+      });
+
+      // Object position
+      const ox = cx - simLensP * scale;
+      const oy = cy - objH;
+
+      // Optical math
+      const fSigned = simLensType === 'convex' ? simLensF : -simLensF;
+      const isParallel = simLensType === 'convex' && Math.abs(simLensP - simLensF) < 0.01;
+      const q = isParallel ? Infinity : 1 / (1 / fSigned - 1 / simLensP);
+      const m = isParallel ? Infinity : -q / simLensP; // negative => inverted
+
+      // Ray 1: Parallel to axis -> through F' (or appears from F for concave)
+      lensCtx.lineWidth = 1.6;
+      lensCtx.strokeStyle = '#F59E0B';
+      lensCtx.beginPath();
+      lensCtx.moveTo(ox, oy);
+      lensCtx.lineTo(cx, oy);
+      if (simLensType === 'convex') {
+        const fx = cx + simLensF * scale;
+        const slope1 = (cy - oy) / (fx - cx);
+        lensCtx.lineTo(W, oy + slope1 * (W - cx));
+      } else {
+        const fx = cx - simLensF * scale;
+        const slope1 = (oy - cy) / (cx - fx);
+        lensCtx.lineTo(W, oy + slope1 * (W - cx));
+      }
+      lensCtx.stroke();
+
+      // Ray 2: Straight through optical center
+      lensCtx.strokeStyle = '#A78BFA';
+      const slope2 = (cy - oy) / (cx - ox);
+      lensCtx.beginPath();
+      lensCtx.moveTo(ox, oy);
+      lensCtx.lineTo(W, oy + slope2 * (W - ox));
+      lensCtx.stroke();
+
+      // Virtual ray extensions & Image
+      if (!isParallel) {
+        const ix = cx + q * scale;
+        const iy = cy - objH * m; // m < 0 => below axis
+        const isVirtual = q < 0;
+
+        if (isVirtual) {
+          lensCtx.save();
+          lensCtx.setLineDash([4, 4]);
+          lensCtx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+          lensCtx.beginPath();
+          lensCtx.moveTo(cx, oy);
+          lensCtx.lineTo(ix, iy);
+          lensCtx.stroke();
+
+          lensCtx.strokeStyle = 'rgba(167, 139, 250, 0.7)';
+          lensCtx.beginPath();
+          lensCtx.moveTo(cx, cy);
+          lensCtx.lineTo(ix, iy);
+          lensCtx.stroke();
+          lensCtx.restore();
+        }
+
+        drawArrow(lensCtx, ix, cy, iy, isVirtual ? '#38BDF8' : '#FB7185', isVirtual);
+        lensCtx.fillStyle = isVirtual ? '#38BDF8' : '#FB7185';
+        lensCtx.font = '600 11px Inter, Noto Sans TC, sans-serif';
+        lensCtx.textAlign = 'center';
+        lensCtx.fillText(isVirtual ? '虛像' : '實像', ix, iy + (iy < cy ? -8 : 16));
+      }
+
+      // Draw Object Arrow on top
+      drawArrow(lensCtx, ox, cy, oy, '#34D399', false);
+      lensCtx.fillStyle = '#34D399';
+      lensCtx.font = '600 11px Inter, Noto Sans TC, sans-serif';
+      lensCtx.textAlign = 'center';
+      lensCtx.fillText('物體（可拖曳）', ox, oy - 8);
+
+      // Update readouts
+      document.getElementById('val-lens-p').textContent = `${fmt(simLensP, 0)} cm`;
+      document.getElementById('val-lens-f').textContent = `${fmt(simLensF, 0)} cm`;
+
+      let propText = '平行光不成像';
+      let qText = '∞';
+      let mText = '—';
+      let sideText = '無成像';
+      if (!isParallel) {
+        const orient = m > 0 ? '正立' : '倒立';
+        const magAbs = Math.abs(m);
+        const size = Math.abs(magAbs - 1) < 0.03 ? '等大' : (magAbs > 1 ? '放大' : '縮小');
+        const kind = q > 0 ? '實像' : '虛像';
+        propText = `${orient}・${size}・${kind}`;
+        qText = `${fmt(Math.abs(q), 1)} cm`;
+        mText = `${fmt(magAbs, 2)} 倍`;
+        sideText = q > 0 ? '異側（可投影）' : '同側（不可投影）';
+      }
+      document.getElementById('sim-lens-readout').innerHTML = `
+        <div class="panel-subtle rounded-xl p-3"><div class="text-[11px] text-zinc-500">成像性質</div><div class="text-sm font-semibold text-violet-500 dark:text-violet-400">${propText}</div></div>
+        <div class="panel-subtle rounded-xl p-3"><div class="text-[11px] text-zinc-500">像距 |q|</div><div class="text-sm font-semibold tabular-nums">${qText}</div></div>
+        <div class="panel-subtle rounded-xl p-3"><div class="text-[11px] text-zinc-500">放大倍率</div><div class="text-sm font-semibold tabular-nums">${mText}</div></div>
+        <div class="panel-subtle rounded-xl p-3"><div class="text-[11px] text-zinc-500">位置與投影</div><div class="text-sm font-semibold">${sideText}</div></div>
+      `;
+    }
+
+    function updateObjFromPointer(e) {
+      const rect = lensCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const cx = rect.width / 2;
+      const scale = rect.width / 110;
+      const newP = Math.round((cx - x) / scale);
+      simLensP = Math.max(4, Math.min(50, newP));
+      document.getElementById('slider-lens-p').value = simLensP;
+      drawLensSim();
+    }
+
+    lensCanvas.addEventListener('pointerdown', e => {
+      isDraggingObj = true;
+      lensCanvas.setPointerCapture(e.pointerId);
+      updateObjFromPointer(e);
+    });
+    lensCanvas.addEventListener('pointermove', e => {
+      if (isDraggingObj) updateObjFromPointer(e);
+    });
+    lensCanvas.addEventListener('pointerup', () => { isDraggingObj = false; });
+    lensCanvas.addEventListener('pointercancel', () => { isDraggingObj = false; });
+
+    document.getElementById('slider-lens-p').addEventListener('input', e => { simLensP = parseFloat(e.target.value); drawLensSim(); });
+    document.getElementById('slider-lens-f').addEventListener('input', e => { simLensF = parseFloat(e.target.value); drawLensSim(); });
+
+    document.getElementById('sim-lens-convex').addEventListener('click', () => {
+      simLensType = 'convex';
+      document.getElementById('sim-lens-convex').className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-500/20 text-violet-500 dark:text-violet-300 border border-violet-500/30';
+      document.getElementById('sim-lens-concave').className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 border border-transparent';
+      drawLensSim();
+    });
+    document.getElementById('sim-lens-concave').addEventListener('click', () => {
+      simLensType = 'concave';
+      document.getElementById('sim-lens-concave').className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-500/20 text-violet-500 dark:text-violet-300 border border-violet-500/30';
+      document.getElementById('sim-lens-convex').className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 border border-transparent';
+      drawLensSim();
+    });
+
+    document.querySelectorAll('.lens-zone-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        simLensType = 'convex';
+        document.getElementById('sim-lens-convex').click();
+        const z = btn.dataset.zone;
+        const map = { gt2f: Math.min(50, Math.round(simLensF * 2.6)), eq2f: simLensF * 2, between: Math.round(simLensF * 1.5), eqf: simLensF, ltf: Math.max(4, Math.round(simLensF * 0.6)) };
+        simLensP = map[z];
+        document.getElementById('slider-lens-p').value = simLensP;
+        drawLensSim();
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (activeMainTab === 'sims') {
+        resizeWaveCanvas();
+        resizeLensCanvas();
+        drawLensSim();
+      }
+    });
+
+    // ==================== TAB 3: RANDOM QUIZ ====================
+    let quizCat = 'mixed';
+    let quizStats = Storage.get('physics_quiz_stats', { total: 0, correct: 0 });
+    let currentQ = null;
+    let answered = false;
+
+    function updateQuizStatsUI() {
+      document.getElementById('quiz-total').textContent = quizStats.total;
+      const acc = quizStats.total > 0 ? Math.round((quizStats.correct / quizStats.total) * 100) : 0;
+      document.getElementById('quiz-acc').textContent = `${acc}%`;
+    }
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function generateQuestion(cat) {
+      const waveGenerators = [
+        () => {
+          // Moving ship / bat toward cliff
+          const vs = 340;
+          const vo = pick([10, 20, 30]);
+          const t = pick([2, 4, 6]);
+          const askD0 = Math.random() < 0.5;
+          const d0 = ((vs + vo) * t) / 2;
+          const d1 = ((vs - vo) * t) / 2;
+          const ans = askD0 ? d0 : d1;
+          const wrong1 = askD0 ? d1 : d0;
+          const wrong2 = (vs * t) / 2;
+          const wrong3 = (vs + vo) * t;
+          const subject = pick(['一艘船', '一隻蝙蝠']);
+          return {
+            tag: '移動回聲測距',
+            q: `${subject}以 ${vo} m/s 等速朝向山壁直線前進，發出聲音後經過 ${t} 秒聽到回聲（設聲速為 340 m/s），請問「${askD0 ? '發聲瞬間' : '聽到回聲瞬間'}」距離山壁多少公尺？`,
+            options: shuffle([`${ans} m`, `${wrong1} m`, `${wrong2} m`, `${wrong3} m`]),
+            answer: `${ans} m`,
+            explain: `朝向山壁前進時，聲音與物體路程相加等於 2 倍原距離：發聲瞬間 d₀ = (340 + ${vo}) × ${t} ÷ 2 = ${d0} m；聽到回聲時已經往前走了 ${vo * t} m，所以 d₁ = ${d0} − ${vo * t} = ${d1} m。一定要看清楚題目問的是哪一個瞬間！`
+          };
+        },
+        () => {
+          // Wave speed v = f * lambda
+          const f = pick([2, 4, 5, 10]);
+          const lam = pick([10, 15, 20, 25]);
+          const v = f * lam;
+          return {
+            tag: '波速與頻率',
+            q: `某繩波每秒振動 ${f} 次，相鄰兩個波峰的距離為 ${lam} cm，請問此繩波的波速為多少 cm/s？`,
+            options: shuffle([`${v} cm/s`, `${v * 2} cm/s`, `${lam / f} cm/s`, `${v / 2} cm/s`]),
+            answer: `${v} cm/s`,
+            explain: `相鄰兩波峰距離即為 1 個波長 λ = ${lam} cm，每秒振動次數即為頻率 f = ${f} Hz，由 v = f × λ 得 ${f} × ${lam} = ${v} cm/s。`
+          };
+        },
+        () => {
+          // Sound 3 properties / bottle
+          const isBlow = Math.random() < 0.5;
+          return {
+            tag: '聲音三要素',
+            q: isBlow
+              ? '有甲、乙兩個相同玻璃瓶，甲瓶裝八分滿水、乙瓶裝三分滿水。若分別「用嘴對著瓶口吹氣」，哪一瓶發出的音調較高？'
+              : '有甲、乙兩個相同玻璃瓶，甲瓶裝八分滿水、乙瓶裝三分滿水。若分別「用筷子輕敲瓶身」，哪一瓶發出的音調較高？',
+            options: shuffle(['甲瓶較高', '乙瓶較高', '兩瓶音調相同', '無法比較，只會響度不同']),
+            answer: isBlow ? '甲瓶較高' : '乙瓶較高',
+            explain: isBlow
+              ? '用嘴吹氣是「瓶內空氣柱」在振動。甲瓶水多 → 空氣柱較短 → 振動頻率較高 → 音調較高！'
+              : '用筷子敲瓶身是「瓶身與水」在振動。乙瓶水少 → 質量較輕、振動較快 → 音調較高！'
+          };
+        }
+      ];
+
+      const opticsGenerators = [
+        () => {
+          // Convex lens imaging
+          const f = 10;
+          const cases = [
+            { p: 30, ans: '倒立、縮小、實像', tip: 'p = 30 > 2f (20 cm)，落在兩倍焦距外，成倒立縮小實像（照相機原理）。' },
+            { p: 20, ans: '倒立、等大、實像', tip: 'p = 20 = 2f，剛好在兩倍焦距上，成倒立等大實像。' },
+            { p: 15, ans: '倒立、放大、實像', tip: 'f (10) < p (15) < 2f (20)，成倒立放大實像（投影機原理）。' },
+            { p: 6,  ans: '正立、放大、虛像', tip: 'p = 6 < f (10)，落在焦點內，成正立放大虛像（放大鏡原理）。' }
+          ];
+          const item = pick(cases);
+          return {
+            tag: '凸透鏡成像',
+            q: `將一蠟燭置於焦距為 ${f} cm 的凸透鏡前 ${item.p} cm 處，其成像性質為何？`,
+            options: shuffle(['倒立、縮小、實像', '倒立、等大、實像', '倒立、放大、實像', '正立、放大、虛像']),
+            answer: item.ans,
+            explain: item.tip
+          };
+        },
+        () => {
+          // Plane mirror angle
+          const mirrorAng = pick([25, 30, 35, 40]);
+          const inc = 90 - mirrorAng;
+          return {
+            tag: '光的反射',
+            q: `一束光線射向平面鏡，已知入射光線與「鏡面」的夾角為 ${mirrorAng}°，請問反射角為幾度？`,
+            options: shuffle([`${inc}°`, `${mirrorAng}°`, `${inc * 2}°`, `${mirrorAng * 2}°`]),
+            answer: `${inc}°`,
+            explain: `入射角是與「法線（垂直鏡面）」的夾角，所以入射角 = 90° − ${mirrorAng}° = ${inc}°，由反射定律知反射角也等於 ${inc}°。`
+          };
+        },
+        () => {
+          // Object color under colored light
+          const scenarios = [
+            { light: '純紅光', obj: '黃色紙張', ans: '紅色', exp: '黃色物體能反射紅光＋綠光；在純紅光照射下，只反射紅光，所以看起來是紅色。' },
+            { light: '純綠光', obj: '紅色蘋果', ans: '黑色', exp: '紅色物體只反射紅光；純綠光中沒有紅光可反射，全部被吸收，所以呈現黑色。' },
+            { light: '純藍光', obj: '白色衣服', ans: '藍色', exp: '白色物體會反射所有色光，因此照什麼色光就呈現什麼顏色（藍色）。' },
+            { light: '純藍光', obj: '黃色紙張', ans: '黑色', exp: '黃色物體只反射紅光與綠光，會吸收藍光，因此在純藍光下看起來是黑色。' }
+          ];
+          const s = pick(scenarios);
+          return {
+            tag: '色光與顏色',
+            q: `在暗室中以「${s.light}」照射一張原本在白光下呈「${s.obj}」的物體，人眼看起來會是什麼顏色？`,
+            options: shuffle(['紅色', '綠色', '藍色', '黑色']),
+            answer: s.ans,
+            explain: s.exp
+          };
+        }
+      ];
+
+      const pool = cat === 'waves' ? waveGenerators : (cat === 'optics' ? opticsGenerators : [...waveGenerators, ...opticsGenerators]);
+      return pick(pool)();
+    }
+
+    function loadNextQuestion() {
+      currentQ = generateQuestion(quizCat);
+      answered = false;
+      const card = document.getElementById('quiz-card');
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-sky-500/15 text-sky-500 dark:text-sky-300 border border-sky-500/30">${currentQ.tag}</span>
+          <button id="quiz-skip-btn" type="button" class="text-xs text-zinc-500 hover:text-sky-400 transition-smooth">換一題 →</button>
+        </div>
+        <h3 class="text-base sm:text-lg font-semibold leading-relaxed">${currentQ.q}</h3>
+        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          ${currentQ.options.map((opt, idx) => `
+            <button type="button" data-opt="${escapeHtml(opt)}"
+              class="quiz-opt-btn text-left px-4 py-3 rounded-xl panel-subtle hover:border-sky-500/50 transition-smooth text-sm font-medium flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-md panel flex items-center justify-center text-xs text-zinc-500 shrink-0">${String.fromCharCode(65 + idx)}</span>
+              <span>${escapeHtml(opt)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div id="quiz-feedback" class="hidden rounded-xl p-4 space-y-2"></div>
+      `;
+
+      document.getElementById('quiz-skip-btn').addEventListener('click', loadNextQuestion);
+      card.querySelectorAll('.quiz-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (answered) return;
+          answered = true;
+          const chosen = btn.dataset.opt;
+          const isCorrect = chosen === currentQ.answer;
+          quizStats.total += 1;
+          if (isCorrect) quizStats.correct += 1;
+          Storage.set('physics_quiz_stats', quizStats);
+          updateQuizStatsUI();
+
+          card.querySelectorAll('.quiz-opt-btn').forEach(b => {
+            b.disabled = true;
+            if (b.dataset.opt === currentQ.answer) {
+              b.classList.add('border-emerald-500', 'bg-emerald-500/15', 'text-emerald-600', 'dark:text-emerald-300');
+            } else if (b === btn && !isCorrect) {
+              b.classList.add('border-rose-500', 'bg-rose-500/15', 'text-rose-600', 'dark:text-rose-300');
+            } else {
+              b.classList.add('opacity-50');
+            }
+          });
+
+          const fb = document.getElementById('quiz-feedback');
+          fb.classList.remove('hidden');
+          fb.className = isCorrect
+            ? 'rounded-xl p-4 space-y-2 bg-emerald-500/10 border border-emerald-500/30'
+            : 'rounded-xl p-4 space-y-2 bg-rose-500/10 border border-rose-500/30';
+          fb.innerHTML = `
+            <div class="text-sm font-semibold ${isCorrect ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+              ${isCorrect ? '答對了！觀念很穩' : `差一點！正確答案是「${escapeHtml(currentQ.answer)}」`}
+            </div>
+            <p class="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">${currentQ.explain}</p>
+            <div class="pt-1">
+              <button id="quiz-next-btn" type="button" class="px-4 py-1.5 rounded-lg text-xs font-medium bg-sky-500 text-white hover:bg-sky-400 transition-smooth">
+                下一題 →
+              </button>
+            </div>
+          `;
+          document.getElementById('quiz-next-btn').addEventListener('click', loadNextQuestion);
+        });
+      });
+    }
+
+    document.querySelectorAll('.qcat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        quizCat = btn.dataset.qcat;
+        document.querySelectorAll('.qcat-btn').forEach(b => {
+          const on = b.dataset.qcat === quizCat;
+          b.className = on
+            ? 'qcat-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-500/15 text-sky-500 dark:text-sky-300 border border-sky-500/30'
+            : 'qcat-btn px-3 py-1.5 rounded-lg text-xs font-medium panel-subtle text-zinc-500 dark:text-zinc-400';
+        });
+        loadNextQuestion();
+      });
+    });
+
+    document.getElementById('quiz-reset-stats').addEventListener('click', () => {
+      quizStats = { total: 0, correct: 0 };
+      Storage.set('physics_quiz_stats', quizStats);
+      updateQuizStatsUI();
+    });
+
+    // ==================== INIT ====================
+    renderTopicList();
+    renderActiveSolver();
+    updateQuizStatsUI();
+    loadNextQuestion();
+  </script>
+</body>
+</html>
